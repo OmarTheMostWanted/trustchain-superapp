@@ -24,6 +24,7 @@ import nl.tudelft.trustchain.musicdao.ui.navigation.Screen
 import nl.tudelft.trustchain.musicdao.ui.screens.profile.MyProfileScreenViewModel
 import nl.tudelft.trustchain.musicdao.ui.styling.MusicDAOTheme
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
+import nl.tudelft.trustchain.musicdao.core.repositories.MusicLikeRepository
 import nl.tudelft.trustchain.musicdao.ui.navigation.BottomNavigationBar
 
 @ExperimentalAnimationApi
@@ -35,10 +36,7 @@ fun MusicDAOApp() {
     MaterialTheme(colors = MusicDAOTheme.DarkColors, shapes = MusicDAOTheme.Shapes) {
         val navController = rememberAnimatedNavController()
 
-        val context = LocalContext.current
-
-        val playerViewModel: PlayerViewModel =
-            viewModel(factory = PlayerViewModel.provideFactory(context = context))
+        val playerViewModel: PlayerViewModel = hiltViewModel()
         val ownProfileViewScreenModel: MyProfileScreenViewModel = hiltViewModel()
 
         val scaffoldState = rememberScaffoldState()

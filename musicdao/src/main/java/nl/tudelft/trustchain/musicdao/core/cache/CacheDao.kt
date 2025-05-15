@@ -3,6 +3,7 @@ package nl.tudelft.trustchain.musicdao.core.cache
 import androidx.lifecycle.LiveData
 import androidx.room.*
 import nl.tudelft.trustchain.musicdao.core.cache.entities.AlbumEntity
+import nl.tudelft.trustchain.musicdao.core.cache.entities.MusicLikeEntity
 
 @Dao
 interface CacheDao {
@@ -35,4 +36,10 @@ interface CacheDao {
 
     @Query("SELECT * FROM AlbumEntity WHERE artist LIKE '%' || :keyword || '%' OR title LIKE '%' || :keyword || '%'")
     suspend fun localSearch(keyword: String): List<AlbumEntity>
+
+    @Query("SELECT * FROM MusicLikeEntity")
+    fun getAllMusicLikes(): List<MusicLikeEntity>
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertMusicLike(musicLike: MusicLikeEntity)
 }

@@ -170,6 +170,7 @@ class HiltModules {
 
         return WalletManagerAndroid.getInstance()
     }
+
 }
 
 class CachePath(val applicationContext: Context) {
