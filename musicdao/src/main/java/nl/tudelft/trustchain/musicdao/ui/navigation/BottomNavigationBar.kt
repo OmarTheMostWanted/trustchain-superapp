@@ -8,6 +8,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavHostController
@@ -23,7 +24,8 @@ fun BottomNavigationBar(navController: NavHostController) {
             BottomNavigationItem("Home", Screen.Home.route, Icons.Filled.Home),
             BottomNavigationItem("Creator", Screen.CreatorMenu.route, Icons.Filled.Person),
             BottomNavigationItem("DAO", Screen.DaoRoute.route, Icons.Filled.Person),
-            BottomNavigationItem("Debug", Screen.Debug.route, Icons.Filled.Build)
+            BottomNavigationItem("Debug", Screen.Debug.route, Icons.Filled.Build),
+            BottomNavigationItem("Leaderboard", Screen.Leaderboard.route, Icons.Filled.Star)
         )
 
     BottomNavigation {
