@@ -12,4 +12,7 @@ constructor(val musicCommunity: MusicCommunity) :
     override fun onSignatureRequest(block: TrustChainBlock) {
         musicCommunity.createAgreementBlock(block, mapOf<Any?, Any?>())
     }
+    companion object {
+        const val BLOCK_TYPE = MusicLikeBlock.BLOCK_TYPE
+    }
 }

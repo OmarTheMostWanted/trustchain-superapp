@@ -39,4 +39,8 @@ class MusicLikeBlockValidator
                     protocolVersion is String && protocolVersion.isNotEmpty() && protocolVersion == Constants.PROTOCOL_VERSION
                 )
         }
+        companion object {
+            const val BLOCK_TYPE = MusicLikeBlock.BLOCK_TYPE
+        }
     }
+

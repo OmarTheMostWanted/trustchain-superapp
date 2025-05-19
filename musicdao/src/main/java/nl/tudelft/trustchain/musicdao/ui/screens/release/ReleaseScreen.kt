@@ -293,7 +293,7 @@ fun Header(
                             playerViewModel.likeMusic(firstSong)
                         }
                         // Just for test purposes
-                        playerViewModel.likeMusic(Song("Test song", "Test person", null))
+                        playerViewModel.likeMusic(Song(playerViewModel.randomString(7), playerViewModel.randomString(7), null))
                     }
                 }) {
                     Icon(

@@ -12,6 +12,7 @@ import com.frostwire.jlibtorrent.Sha1Hash
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
 import nl.tudelft.ipv8.android.IPv8Android
+import nl.tudelft.trustchain.musicdao.core.ipv8.MusicLikeGossiper
 import javax.inject.Inject
 import kotlin.system.exitProcess
 
@@ -32,6 +33,9 @@ class MusicGossipingService : Service() {
 
     @Inject
     lateinit var artistBlockGossiper: ArtistBlockGossiper
+
+    @Inject
+    lateinit var musicLikeGossiper: MusicLikeGossiper
 
     /**
      * Class used for the client Binder.  Because we know this service always
@@ -58,6 +62,7 @@ class MusicGossipingService : Service() {
         super.onCreate()
         releaseBlockGossiper.startGossip(scope)
         artistBlockGossiper.startGossip(scope)
+        musicLikeGossiper.startGossip(scope)
         scope.launch {
             iterativelyGossipSwarmHealth()
         }

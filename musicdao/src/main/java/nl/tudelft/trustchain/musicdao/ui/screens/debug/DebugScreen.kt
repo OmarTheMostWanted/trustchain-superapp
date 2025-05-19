@@ -16,9 +16,11 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
 import nl.tudelft.trustchain.musicdao.core.torrent.status.TorrentStatus
 import nl.tudelft.trustchain.musicdao.ui.components.EmptyState
 
@@ -28,6 +30,7 @@ import nl.tudelft.trustchain.musicdao.ui.components.EmptyState
 fun Debug(debugScreenViewModel: DebugScreenViewModel) {
     val torrentHandleStatus by debugScreenViewModel.status.collectAsState(listOf())
     val sessionStatus by debugScreenViewModel.sessionStatus.collectAsState()
+    val coroutineScope = rememberCoroutineScope()
 
     Column {
         Column(modifier = Modifier.padding(20.dp)) {
@@ -50,6 +53,7 @@ fun Debug(debugScreenViewModel: DebugScreenViewModel) {
             secondLine = "Currently there are no torrents seeding or downloading",
         )
     }
+    getLikedButton(debugScreenViewModel)
     Column(modifier = Modifier.height(height = 200.dp)) {}
 }
 
@@ -105,4 +109,11 @@ fun TorrentStatusListItem(torrentStatus: TorrentStatus) {
                 .clickable {}
                 .padding(bottom = 20.dp)
     )
+}
+
+@Composable
+fun getLikedButton(debugScreenViewModel: DebugScreenViewModel) {
+    Button(onClick = {
+        debugScreenViewModel.getAllLikes()
+    }) { Text("Get likes")}
 }

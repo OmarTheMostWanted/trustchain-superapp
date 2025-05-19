@@ -33,6 +33,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.components.ActivityComponent
 import kotlinx.coroutines.*
 import nl.tudelft.trustchain.musicdao.core.coin.WalletManager
+import nl.tudelft.trustchain.musicdao.core.repositories.MusicLikeRepository
 import javax.inject.Inject
 
 /**
@@ -45,6 +46,9 @@ class MusicActivity : AppCompatActivity() {
 
     @Inject
     lateinit var artistRepository: ArtistRepository
+
+    @Inject
+    lateinit var musicLikeRepository: MusicLikeRepository
 
     @OptIn(DelicateCoroutinesApi::class)
     @Inject
@@ -80,9 +84,10 @@ class MusicActivity : AppCompatActivity() {
         lifecycleScope.launchWhenStarted {
             setupMusicCommunity.registerListeners()
             albumRepository.refreshCache()
+            musicLikeRepository.refreshCache()
             torrentEngine.seedStrategy()
         }
-        iterativelyFetchReleases()
+        iterativelyFetchReleasesAndMusicLikes()
         Intent(this, MusicGossipingService::class.java).also { intent ->
             startService(intent)
             bindService(intent, mConnection, Context.BIND_AUTO_CREATE)
@@ -230,11 +235,12 @@ class MusicActivity : AppCompatActivity() {
         return uriList
     }
 
-    private fun iterativelyFetchReleases() {
+    private fun iterativelyFetchReleasesAndMusicLikes() {
         @Suppress("DEPRECATION")
         lifecycleScope.launchWhenStarted {
             while (isActive) {
                 albumRepository.refreshCache()
+                musicLikeRepository.refreshCache()
                 delay(3000)
             }
         }

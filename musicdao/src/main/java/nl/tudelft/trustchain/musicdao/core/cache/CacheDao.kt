@@ -38,7 +38,7 @@ interface CacheDao {
     suspend fun localSearch(keyword: String): List<AlbumEntity>
 
     @Query("SELECT * FROM MusicLikeEntity")
-    fun getAllMusicLikes(): List<MusicLikeEntity>
+    suspend fun getAllMusicLikes(): List<MusicLikeEntity>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertMusicLike(musicLike: MusicLikeEntity)

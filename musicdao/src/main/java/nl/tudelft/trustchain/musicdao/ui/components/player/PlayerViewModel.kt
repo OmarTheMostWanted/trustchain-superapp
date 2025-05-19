@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.StateFlow
 import nl.tudelft.trustchain.musicdao.core.repositories.MusicLikeRepository
 import java.io.File
 import javax.inject.Inject
+import kotlin.random.Random
 
 @HiltViewModel
 class PlayerViewModel @Inject constructor(
@@ -94,5 +95,12 @@ class PlayerViewModel @Inject constructor(
     fun release() {
         exoPlayer.release()
         exoPlayer.stop()
+    }
+
+    fun randomString(stringLength: Int): String {
+        val charPool : List<Char> = ('a'..'z') + ('A'..'Z') + ('0'..'9')
+        return (1..stringLength)
+            .map { Random.nextInt(0, charPool.size).let { charPool[it] } }
+            .joinToString("")
     }
 }
