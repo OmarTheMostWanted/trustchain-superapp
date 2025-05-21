@@ -14,11 +14,21 @@ import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
 import com.google.android.exoplayer2.upstream.DataSource
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
+import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import nl.tudelft.trustchain.musicdao.core.repositories.MusicLikeRepository
 import java.io.File
+import javax.inject.Inject
+import kotlin.random.Random
 
-class PlayerViewModel(context: Context) : ViewModel() {
+@HiltViewModel
+class PlayerViewModel @Inject constructor(
+    // Not sure if context is actually passed correctly
+    @ApplicationContext private val context: Context,
+    private val musicLikeRepository: MusicLikeRepository
+) : ViewModel() {
     private val _playingTrack: MutableStateFlow<Song?> = MutableStateFlow(null)
     val playingTrack: StateFlow<Song?> = _playingTrack
 
@@ -39,6 +49,15 @@ class PlayerViewModel(context: Context) : ViewModel() {
         val mediaItem = MediaItem.fromUri(uri)
         return ProgressiveMediaSource.Factory(dataSourceFactory)
             .createMediaSource(mediaItem)
+    }
+
+    suspend fun likeMusic(
+        track: Song,
+    ) {
+        val name = "Test Person"
+        Log.d("MusicLike", "$name attempts to like ${track.title}")
+        musicLikeRepository.createMusicLike(name, track.title)
+        Log.d("MusicLike", "$name liked ${track.title}")
     }
 
     fun playDownloadedTrack(
@@ -78,15 +97,10 @@ class PlayerViewModel(context: Context) : ViewModel() {
         exoPlayer.stop()
     }
 
-    companion object {
-        fun provideFactory(context: Context): ViewModelProvider.Factory =
-            object : ViewModelProvider.Factory {
-                @Suppress("UNCHECKED_CAST")
-                override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                    return PlayerViewModel(
-                        context
-                    ) as T
-                }
-            }
+    fun randomString(stringLength: Int): String {
+        val charPool : List<Char> = ('a'..'z') + ('A'..'Z') + ('0'..'9')
+        return (1..stringLength)
+            .map { Random.nextInt(0, charPool.size).let { charPool[it] } }
+            .joinToString("")
     }
 }

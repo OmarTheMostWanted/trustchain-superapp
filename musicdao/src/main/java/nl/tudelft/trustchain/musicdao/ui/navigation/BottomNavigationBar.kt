@@ -5,6 +5,7 @@ import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.runtime.*
@@ -21,7 +22,8 @@ fun BottomNavigationBar(navController: NavHostController) {
         listOf(
             BottomNavigationItem("Home", Screen.Home.route, Icons.Filled.Home),
             BottomNavigationItem("Creator", Screen.CreatorMenu.route, Icons.Filled.Person),
-            BottomNavigationItem("DAO", Screen.DaoRoute.route, Icons.Filled.Person)
+            BottomNavigationItem("DAO", Screen.DaoRoute.route, Icons.Filled.Person),
+            BottomNavigationItem("Debug", Screen.Debug.route, Icons.Filled.Build)
         )
 
     BottomNavigation {

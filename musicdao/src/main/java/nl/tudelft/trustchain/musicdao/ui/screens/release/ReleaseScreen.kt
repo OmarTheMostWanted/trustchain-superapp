@@ -1,6 +1,9 @@
 package nl.tudelft.trustchain.musicdao.ui.screens.release
 
 import android.app.Activity
+import android.content.Context
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -39,6 +42,9 @@ import nl.tudelft.trustchain.musicdao.ui.util.dateToShortString
 import nl.tudelft.trustchain.musicdao.ui.navigation.Screen
 import nl.tudelft.trustchain.musicdao.ui.screens.torrent.TorrentStatusScreen
 import dagger.hilt.android.EntryPointAccessors
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+import nl.tudelft.trustchain.musicdao.ui.SnackbarHandler
 import java.io.File
 
 @ExperimentalMaterialApi
@@ -50,6 +56,8 @@ fun ReleaseScreen(
 ) {
     var state by remember { mutableStateOf(0) }
     val titles = listOf("RELEASE", "TORRENT")
+    val coroutineScope = rememberCoroutineScope()
+
 
     val viewModelFactory =
         EntryPointAccessors.fromActivity(
@@ -148,7 +156,7 @@ fun ReleaseScreen(
                                 .align(Alignment.CenterHorizontally)
                     )
                 }
-                Header(album, navController = navController)
+                Header(album, navController = navController, playerViewModel = playerViewModel, coroutineScope = coroutineScope, context=context)
                 if (album.songs != null && album.songs.isNotEmpty()) {
                     val files = album.songs
                     files.map {
@@ -224,7 +232,10 @@ fun ReleaseScreen(
 @Composable
 fun Header(
     album: Album,
-    navController: NavController
+    navController: NavController,
+    playerViewModel: PlayerViewModel,
+    coroutineScope: CoroutineScope,
+    context: Context
 ) {
     Column(modifier = Modifier.padding(top = 10.dp, start = 20.dp, end = 20.dp)) {
         Text(
@@ -272,7 +283,19 @@ fun Header(
             modifier = Modifier.fillMaxWidth()
         ) {
             Row {
-                IconButton(onClick = { /*TODO*/ }) {
+                IconButton(onClick = {
+                    Toast.makeText(context, "Liked song from album ${album.title}", Toast.LENGTH_SHORT).show()
+                    coroutineScope.launch {
+                        if (album.songs.isNullOrEmpty()) {
+                            Log.d("MusicLike", "No songs to like")
+                        }
+                        album.songs?.firstOrNull()?.let { firstSong ->
+                            playerViewModel.likeMusic(firstSong)
+                        }
+                        // Just for test purposes
+                        playerViewModel.likeMusic(Song(playerViewModel.randomString(7), playerViewModel.randomString(7), null))
+                    }
+                }) {
                     Icon(
                         imageVector = Icons.Outlined.Favorite,
                         contentDescription = null
