@@ -71,10 +71,12 @@ fun AppNavigation(
             }
             composable(Screen.Leaderboard.route) {
                 val searchScreenViewModel: nl.tudelft.trustchain.musicdao.ui.screens.search.SearchScreenViewModel = hiltViewModel()
+                val leaderboardViewModel: nl.tudelft.trustchain.musicdao.ui.screens.leaderboard.LeaderboardViewModel = hiltViewModel()
                 val albums = searchScreenViewModel.searchResult.collectAsState(listOf()).value
                 nl.tudelft.trustchain.musicdao.ui.screens.leaderboard.LeaderboardScreen(
                     albums = albums,
-                    navController = navController
+                    navController = navController,
+                    musicLikeRepository = leaderboardViewModel.musicLikeRepository
                 )
             }
             composable(Screen.Search.route) {

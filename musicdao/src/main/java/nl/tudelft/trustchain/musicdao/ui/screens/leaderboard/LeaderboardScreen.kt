@@ -11,16 +11,28 @@ import androidx.navigation.NavController
 import nl.tudelft.trustchain.musicdao.core.repositories.model.Album
 import nl.tudelft.trustchain.musicdao.core.repositories.model.Song
 import androidx.compose.ui.text.style.TextOverflow
+import nl.tudelft.trustchain.musicdao.core.repositories.MusicLikeRepository
 
 @Composable
 fun LeaderboardScreen(
     albums: List<Album>,
-    navController: NavController
+    navController: NavController,
+    musicLikeRepository: MusicLikeRepository
 ) {
+    var likesByTitle by remember { mutableStateOf<Map<String, Int>>(emptyMap()) }
+
+    LaunchedEffect(Unit) {
+        // Fetch all likes from the repository
+        val likes = musicLikeRepository.getLikes()
+        // Group and count likes by likedMusicId (track.title in current logic)
+        likesByTitle = likes.groupingBy { it.likedMusicId }.eachCount()
+    }
+
     val songsWithLikes = albums
         .flatMap { it.songs.orEmpty() }
         .map { song ->
-            song to (1..9).random()
+            val likeCount = likesByTitle[song.title] ?: 0
+            song to likeCount
         }
         .sortedByDescending { it.second }
 
