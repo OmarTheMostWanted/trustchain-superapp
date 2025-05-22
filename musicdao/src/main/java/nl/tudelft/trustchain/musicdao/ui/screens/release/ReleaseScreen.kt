@@ -30,6 +30,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import nl.tudelft.trustchain.musicdao.MusicActivity
@@ -50,7 +51,6 @@ import java.io.File
 @ExperimentalMaterialApi
 @Composable
 fun ReleaseScreen(
-    releaseId: String,
     playerViewModel: PlayerViewModel,
     navController: NavController
 ) {
@@ -58,17 +58,7 @@ fun ReleaseScreen(
     val titles = listOf("RELEASE", "TORRENT")
     val coroutineScope = rememberCoroutineScope()
 
-
-    val viewModelFactory =
-        EntryPointAccessors.fromActivity(
-            LocalContext.current as Activity,
-            MusicActivity.ViewModelFactoryProvider::class.java
-        ).noteDetailViewModelFactory()
-
-    val viewModel: ReleaseScreenViewModel =
-        viewModel(
-            factory = ReleaseScreenViewModel.provideFactory(viewModelFactory, releaseId = releaseId)
-        )
+    val viewModel: ReleaseScreenViewModel = hiltViewModel()
 
     val torrentStatus by viewModel.torrentState.collectAsState()
     val albumState by viewModel.saturatedReleaseState.observeAsState()
@@ -156,7 +146,7 @@ fun ReleaseScreen(
                                 .align(Alignment.CenterHorizontally)
                     )
                 }
-                Header(album, navController = navController, playerViewModel = playerViewModel, coroutineScope = coroutineScope, context=context)
+                Header(album, navController = navController)
                 if (album.songs != null && album.songs.isNotEmpty()) {
                     val files = album.songs
                     files.map {
@@ -173,10 +163,25 @@ fun ReleaseScreen(
                             text = { Text(it.title, color = isPlayingModifier, maxLines = 1, overflow = TextOverflow.Ellipsis) },
                             secondaryText = { Text(it.artist, color = isPlayingModifier) },
                             trailing = {
-                                Icon(
-                                    imageVector = Icons.Default.MoreVert,
-                                    contentDescription = null
-                                )
+                                val isLiked by viewModel.isMusicLikedByMe(it).collectAsState(initial = false)
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    IconButton(enabled = !isLiked , onClick = {
+                                        Toast.makeText(context, "Liked song from album ${album.title}", Toast.LENGTH_SHORT).show()
+                                        coroutineScope.launch {
+                                            viewModel.likeMusic(it)
+                                        }
+                                    }) {
+                                        Icon(
+                                            imageVector = Icons.Outlined.Favorite,
+                                            contentDescription = "Like",
+                                            tint = if (isLiked) MaterialTheme.colors.primary else Color.Gray
+                                        )
+                                    }
+                                    Icon(
+                                        imageVector = Icons.Default.MoreVert,
+                                        contentDescription = "More options"
+                                    )
+                                }
                             },
                             modifier = Modifier.clickable { play(it, album.cover) }
                         )
@@ -232,10 +237,7 @@ fun ReleaseScreen(
 @Composable
 fun Header(
     album: Album,
-    navController: NavController,
-    playerViewModel: PlayerViewModel,
-    coroutineScope: CoroutineScope,
-    context: Context
+    navController: NavController
 ) {
     Column(modifier = Modifier.padding(top = 10.dp, start = 20.dp, end = 20.dp)) {
         Text(
@@ -283,19 +285,7 @@ fun Header(
             modifier = Modifier.fillMaxWidth()
         ) {
             Row {
-                IconButton(onClick = {
-                    Toast.makeText(context, "Liked song from album ${album.title}", Toast.LENGTH_SHORT).show()
-                    coroutineScope.launch {
-                        if (album.songs.isNullOrEmpty()) {
-                            Log.d("MusicLike", "No songs to like")
-                        }
-                        album.songs?.firstOrNull()?.let { firstSong ->
-                            playerViewModel.likeMusic(firstSong)
-                        }
-                        // Just for test purposes
-                        playerViewModel.likeMusic(Song(playerViewModel.randomString(7), playerViewModel.randomString(7), null))
-                    }
-                }) {
+                IconButton(onClick = {}) {
                     Icon(
                         imageVector = Icons.Outlined.Favorite,
                         contentDescription = null

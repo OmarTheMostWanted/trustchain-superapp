@@ -2,6 +2,7 @@ package nl.tudelft.trustchain.musicdao.core.cache
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
+import kotlinx.coroutines.flow.Flow
 import nl.tudelft.trustchain.musicdao.core.cache.entities.AlbumEntity
 import nl.tudelft.trustchain.musicdao.core.cache.entities.MusicLikeEntity
 
@@ -42,4 +43,7 @@ interface CacheDao {
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertMusicLike(musicLike: MusicLikeEntity)
+
+    @Query("SELECT EXISTS(SELECT 1 FROM MusicLikeEntity WHERE likedMusicId = :songId AND name = :myId)")
+    fun isSongLikedByMe(songId: String, myId: String): Flow<Boolean>
 }

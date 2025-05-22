@@ -204,17 +204,9 @@ fun AppNavigation(
             }
             composable(
                 Screen.Release.route,
-                arguments =
-                    listOf(
-                        navArgument("releaseId") {
-                            type = NavType.StringType
-                        }
-                    )
+                arguments = listOf(navArgument("releaseId") { type = NavType.StringType })
             ) { navBackStackEntry ->
                 ReleaseScreen(
-                    navBackStackEntry.arguments?.getString(
-                        "releaseId"
-                    )!!,
                     playerViewModel = playerViewModel,
                     navController = navController
                 )
