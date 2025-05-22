@@ -3,6 +3,8 @@ package nl.tudelft.trustchain.musicdao.ui.navigation
 sealed class Screen(val route: String) {
     object Home : Screen("home")
 
+    object Leaderboard : Screen("leaderboard")
+
     object Release : Screen("release/{releaseId}") {
         fun createRoute(releaseId: String) = "release/$releaseId"
     }
