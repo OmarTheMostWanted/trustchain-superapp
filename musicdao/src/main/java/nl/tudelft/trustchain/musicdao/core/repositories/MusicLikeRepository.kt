@@ -1,17 +1,14 @@
 package nl.tudelft.trustchain.musicdao.core.repositories
 
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.map
 import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.flow.Flow
 import nl.tudelft.trustchain.musicdao.core.cache.CacheDatabase
-import nl.tudelft.trustchain.musicdao.core.cache.entities.AlbumEntity
 import nl.tudelft.trustchain.musicdao.core.cache.entities.MusicLikeEntity
 import nl.tudelft.trustchain.musicdao.core.ipv8.blocks.musicLike.MusicLikeBlock
 import nl.tudelft.trustchain.musicdao.core.ipv8.blocks.musicLike.MusicLikeBlockRepository
-import nl.tudelft.trustchain.musicdao.core.ipv8.blocks.releasePublish.ReleasePublishBlock
-import nl.tudelft.trustchain.musicdao.core.repositories.model.Album
 import nl.tudelft.trustchain.musicdao.core.repositories.model.MusicLike
-import nl.tudelft.trustchain.musicdao.core.torrent.TorrentEngine
+import nl.tudelft.trustchain.musicdao.core.repositories.model.Song
 import javax.inject.Inject
 
 class MusicLikeRepository @Inject
@@ -25,45 +22,48 @@ constructor(
 
     @OptIn(DelicateCoroutinesApi::class)
     suspend fun createMusicLike(
-         name: String,
-         likedMusicId: String
-    ): Boolean {
+         track: Song
+    ): MusicLikeBlock? {
+        val id = MusicLike.musicLikeIdFromSong(track)
         // Create and publish the Trustchain block.
         val block =
             musicLikeBlockRepository.create(
-                create = MusicLikeBlockRepository.Companion.CreateMusicLikeBlock(name, likedMusicId)
+                create = MusicLikeBlockRepository.Companion.CreateMusicLikeBlock(id)
             )?.let { MusicLikeBlock.fromTrustChainTransaction(it.transaction) }
 
         // If successful, we optimistically add it to our local cache.
         block?.let {
-            database.dao.insertMusicLike(
-                MusicLikeEntity(
-                    publicKey = it.publicKey,
-                    likedMusicId = it.likedMusicId,
-                    name = it.name,
-                    protocolVersion = it.protocolVersion,
-                    id = "${it.name}_${it.likedMusicId}"
-                )
-            )
+            insertBlock(it)
         }
 
-        return block != null
+        return block
     }
 
     @OptIn(DelicateCoroutinesApi::class)
     suspend fun refreshCache() {
         val musicLikeBlocks = musicLikeBlockRepository.getAllKnownSongLikes()
-
         musicLikeBlocks.forEach {
-            database.dao.insertMusicLike(
-                MusicLikeEntity(
-                    publicKey = it.publicKey,
-                    likedMusicId = it.likedMusicId,
-                    name = it.name,
-                    protocolVersion = it.protocolVersion,
-                    id = "${it.name}_${it.likedMusicId}"
-                )
-            )
+            insertBlock(it)
         }
+    }
+
+    private suspend fun insertBlock(block: MusicLikeBlock) {
+        database.dao.insertMusicLike(
+            MusicLikeEntity(
+                publicKey = block.publicKey,
+                likedMusicId = block.likedMusicId,
+                name = block.name,
+                protocolVersion = block.protocolVersion,
+                id = getDatabaseIdFromBlock(block)
+            )
+        )
+    }
+
+    private fun getDatabaseIdFromBlock(block: MusicLikeBlock): String {
+        return "${block.name}_${block.likedMusicId}"
+    }
+
+    fun isSongLikedByMe(track: Song): Flow<Boolean> {
+        return database.dao.isSongLikedByMe(MusicLike.musicLikeIdFromSong(track), musicLikeBlockRepository.myPeerPublicKey)
     }
 }
