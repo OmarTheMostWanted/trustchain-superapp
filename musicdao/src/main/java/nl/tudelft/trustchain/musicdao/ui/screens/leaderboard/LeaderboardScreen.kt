@@ -1,5 +1,6 @@
 package nl.tudelft.trustchain.musicdao.ui.screens.leaderboard
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -11,8 +12,10 @@ import androidx.navigation.NavController
 import nl.tudelft.trustchain.musicdao.core.repositories.model.Album
 import nl.tudelft.trustchain.musicdao.core.repositories.model.Song
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.constraintlayout.motion.widget.MotionScene.Transition.TransitionOnClick
 import nl.tudelft.trustchain.musicdao.core.repositories.MusicLikeRepository
 import nl.tudelft.trustchain.musicdao.core.repositories.model.MusicLike
+import nl.tudelft.trustchain.musicdao.ui.navigation.Screen
 
 @Composable
 fun LeaderboardScreen(
@@ -57,10 +60,19 @@ fun LeaderboardScreen(
                 Divider()
             }
             itemsIndexed(songsWithLikes) { index, (song, likes) ->
+                // Find the album this song belongs to
+                val album = albums.firstOrNull {
+                    it.songs?.any { s -> s.title ==  song.title && s.artist == song.artist } == true
+                }
+                val albumId = album?.id ?: return@itemsIndexed
+
                 LeaderboardListItem(
                     song = song,
                     likes = likes,
-                    rank = index + 1
+                    rank = index + 1,
+                    onClick = {
+                        navController.navigate(Screen.Release.createRoute(albumId)) // Handler to navigate to the album screen
+                    }
                 )
                 Divider()
             }
@@ -80,7 +92,8 @@ fun LeaderboardScreen(
 fun LeaderboardListItem(
     song: Song,
     likes: Int,
-    rank: Int
+    rank: Int,
+    onClick: () -> Unit
 ) {
     ListItem(
         text = {
@@ -102,6 +115,7 @@ fun LeaderboardListItem(
                 "$likes likes",
                 style = MaterialTheme.typography.body1
             )
-        }
+        },
+        modifier = Modifier.clickable { onClick() } // Handle click to trigger navigation
     )
 }
