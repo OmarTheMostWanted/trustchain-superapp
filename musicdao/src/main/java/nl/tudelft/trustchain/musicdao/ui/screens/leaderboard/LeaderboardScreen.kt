@@ -12,7 +12,6 @@ import androidx.navigation.NavController
 import nl.tudelft.trustchain.musicdao.core.repositories.model.Album
 import nl.tudelft.trustchain.musicdao.core.repositories.model.Song
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.constraintlayout.motion.widget.MotionScene.Transition.TransitionOnClick
 import nl.tudelft.trustchain.musicdao.core.repositories.MusicLikeRepository
 import nl.tudelft.trustchain.musicdao.core.repositories.model.MusicLike
 import nl.tudelft.trustchain.musicdao.ui.navigation.Screen
