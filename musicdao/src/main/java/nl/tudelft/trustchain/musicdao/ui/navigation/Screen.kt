@@ -5,8 +5,19 @@ sealed class Screen(val route: String) {
 
     object Leaderboard : Screen("leaderboard")
 
-    object Release : Screen("release/{releaseId}") {
-        fun createRoute(releaseId: String) = "release/$releaseId"
+    object Release : Screen("release/{releaseId}?title={title}&artist={artist}") {
+
+        // If a specific song (title + artist) is provided, include them as query parameters.
+        // Otherwise, just navigate to the album with its ID.
+        fun createRoute(releaseId: String, title: String? = null, artist: String? = null): String {
+            return if (title != null && artist != null) {
+                // Include song metadata in the route to support auto-play (if provided)
+                "release/$releaseId?title=$title&artist=$artist"
+            } else {
+                // Default navigation to the album without song selection
+                "release/$releaseId"
+            }
+        }
     }
 
     object Search : Screen("search")

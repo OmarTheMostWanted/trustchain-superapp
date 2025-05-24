@@ -1,5 +1,6 @@
 package nl.tudelft.trustchain.musicdao.ui.screens.leaderboard
 
+import java.util.Base64
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -70,7 +71,11 @@ fun LeaderboardScreen(
                     likes = likes,
                     rank = index + 1,
                     onClick = {
-                        navController.navigate(Screen.Release.createRoute(albumId)) // Handler to navigate to the album screen
+                        navController.currentBackStackEntry?.savedStateHandle?.apply {
+                            set("songTitle", song.title) // Stores the clicked song’s info so
+                            set("songArtist", song.artist) // the next screen can access it.
+                        }
+                        navController.navigate(Screen.Release.createRoute(albumId)) // Navigate to the album
                     }
                 )
                 Divider()

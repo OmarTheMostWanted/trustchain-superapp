@@ -93,6 +93,26 @@ fun ReleaseScreen(
     val scrollState = rememberScrollState()
 
     albumState?.let { album ->
+
+        // Get the values that has been stored from the previous screen
+        val songTitle = navController.previousBackStackEntry?.savedStateHandle?.get<String>("songTitle")
+        val songArtist = navController.previousBackStackEntry?.savedStateHandle?.get<String>("songArtist")
+
+        LaunchedEffect(songTitle, songArtist) {
+            if (songTitle != null && songArtist != null) {
+                val songToPlay = album.songs?.firstOrNull {
+                    it.title == songTitle && it.artist == songArtist
+                }
+                if (songToPlay != null) {
+                    playerViewModel.playDownloadedTrack(songToPlay, album.cover) // Starts the playback
+                }
+
+                // Clean up state so it doesn't auto-trigger again
+                navController.previousBackStackEntry?.savedStateHandle?.remove<String>("songTitle")
+                navController.previousBackStackEntry?.savedStateHandle?.remove<String>("songArtist")
+            }
+        }
+
         LaunchedEffect(
             key1 = playerViewModel,
             block = {
