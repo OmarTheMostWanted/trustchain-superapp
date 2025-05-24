@@ -39,6 +39,7 @@ import nl.tudelft.trustchain.musicdao.ui.screens.profile.MyProfileScreen
 import nl.tudelft.trustchain.musicdao.ui.screens.profile.MyProfileScreenViewModel
 import nl.tudelft.trustchain.musicdao.ui.screens.profile.ProfileScreen
 import nl.tudelft.trustchain.musicdao.ui.screens.profileMenu.ProfileMenuScreen
+import androidx.compose.runtime.collectAsState
 
 @ExperimentalAnimationApi
 @ExperimentalFoundationApi
@@ -66,6 +67,16 @@ fun AppNavigation(
                 HomeScreen(
                     navController = navController,
                     screenViewModel = searchScreenViewModel
+                )
+            }
+            composable(Screen.Leaderboard.route) {
+                val searchScreenViewModel: nl.tudelft.trustchain.musicdao.ui.screens.search.SearchScreenViewModel = hiltViewModel()
+                val leaderboardViewModel: nl.tudelft.trustchain.musicdao.ui.screens.leaderboard.LeaderboardViewModel = hiltViewModel()
+                val albums = searchScreenViewModel.searchResult.collectAsState(listOf()).value
+                nl.tudelft.trustchain.musicdao.ui.screens.leaderboard.LeaderboardScreen(
+                    albums = albums,
+                    navController = navController,
+                    musicLikeRepository = leaderboardViewModel.musicLikeRepository
                 )
             }
             composable(Screen.Search.route) {
@@ -193,17 +204,9 @@ fun AppNavigation(
             }
             composable(
                 Screen.Release.route,
-                arguments =
-                    listOf(
-                        navArgument("releaseId") {
-                            type = NavType.StringType
-                        }
-                    )
+                arguments = listOf(navArgument("releaseId") { type = NavType.StringType })
             ) { navBackStackEntry ->
                 ReleaseScreen(
-                    navBackStackEntry.arguments?.getString(
-                        "releaseId"
-                    )!!,
                     playerViewModel = playerViewModel,
                     navController = navController
                 )
