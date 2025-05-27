@@ -15,6 +15,7 @@ constructor(
     private val musicLikeBlockValidator: MusicLikeBlockValidator
 ) {
 
+    public val myPeerPublicKey = musicCommunity.myPeer.publicKey.keyToBin().toHex()
 
     suspend fun getOrCrawl(songId: String): List<MusicLikeBlock>? {
         val block = get(songId)
@@ -79,8 +80,8 @@ constructor(
     fun create(create: CreateMusicLikeBlock): TrustChainBlock? {
         val transaction =
             mutableMapOf(
-                "publicKey" to musicCommunity.myPeer.publicKey.keyToBin().toHex(),
-                "name" to create.name,
+                "publicKey" to myPeerPublicKey,
+                "name" to myPeerPublicKey,
                 "likedMusicId" to create.likedMusicId,
                 "protocolVersion" to Constants.PROTOCOL_VERSION
             )
@@ -102,7 +103,6 @@ constructor(
 
     companion object {
         data class CreateMusicLikeBlock(
-            val name: String,
             val likedMusicId: String
         )
     }

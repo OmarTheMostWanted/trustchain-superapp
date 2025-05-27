@@ -258,7 +258,7 @@ class MusicActivity : AppCompatActivity() {
     @EntryPoint
     @InstallIn(ActivityComponent::class)
     interface ViewModelFactoryProvider {
-        fun noteDetailViewModelFactory(): ReleaseScreenViewModel.ReleaseScreenViewModelFactory
+        //fun noteDetailViewModelFactory(): ReleaseScreenViewModel.ReleaseScreenViewModelFactory
 
         fun profileScreenViewModelFactory(): ProfileScreenViewModel.ProfileScreenViewModelFactory
     }

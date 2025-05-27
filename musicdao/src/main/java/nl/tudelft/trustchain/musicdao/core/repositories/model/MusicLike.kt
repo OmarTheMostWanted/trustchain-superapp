@@ -5,4 +5,12 @@ class MusicLike (
     val name: String,
     val likedMusicId: String,
     val protocolVersion: String
-)
+) {
+
+    // TODO: Use a better ID generation to reduce overlap
+    companion object {
+        fun musicLikeIdFromSong(track: Song): String {
+            return track.title + "_" + track.artist
+        }
+    }
+}
