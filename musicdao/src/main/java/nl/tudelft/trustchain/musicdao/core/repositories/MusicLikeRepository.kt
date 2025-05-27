@@ -1,8 +1,8 @@
 package nl.tudelft.trustchain.musicdao.core.repositories
 
-import androidx.lifecycle.map
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import nl.tudelft.trustchain.musicdao.core.cache.CacheDatabase
 import nl.tudelft.trustchain.musicdao.core.cache.entities.MusicLikeEntity
 import nl.tudelft.trustchain.musicdao.core.ipv8.blocks.musicLike.MusicLikeBlock
@@ -10,6 +10,7 @@ import nl.tudelft.trustchain.musicdao.core.ipv8.blocks.musicLike.MusicLikeBlockR
 import nl.tudelft.trustchain.musicdao.core.repositories.model.MusicLike
 import nl.tudelft.trustchain.musicdao.core.repositories.model.Song
 import javax.inject.Inject
+
 
 class MusicLikeRepository @Inject
 constructor(
@@ -25,6 +26,17 @@ constructor(
          track: Song
     ): MusicLikeBlock? {
         val id = MusicLike.musicLikeIdFromSong(track)
+
+        // Check if the song is already liked by the user
+        val isLiked = database.dao.isSongLikedByMe(id, musicLikeBlockRepository.myPeerPublicKey)
+            .first() ?: false
+
+        if (isLiked) {
+            // Log or handle the case where the song is already liked
+            android.util.Log.d("MusicLike", "Song is already liked by the user: $id")
+            return null
+        }
+
         // Create and publish the Trustchain block.
         val block =
             musicLikeBlockRepository.create(
