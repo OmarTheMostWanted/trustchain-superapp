@@ -5,6 +5,7 @@ import androidx.room.*
 import kotlinx.coroutines.flow.Flow
 import nl.tudelft.trustchain.musicdao.core.cache.entities.AlbumEntity
 import nl.tudelft.trustchain.musicdao.core.cache.entities.MusicLikeEntity
+import nl.tudelft.trustchain.musicdao.core.ipv8.blocks.Constants
 
 @Dao
 interface CacheDao {
@@ -40,6 +41,9 @@ interface CacheDao {
 
     @Query("SELECT * FROM MusicLikeEntity")
     suspend fun getAllMusicLikes(): List<MusicLikeEntity>
+
+    @Query("SELECT * FROM MusicLikeEntity WHERE protocolVersion is :version")
+    suspend fun getCurrentVersionLikes(version: String = Constants.PROTOCOL_VERSION): List<MusicLikeEntity>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertMusicLike(musicLike: MusicLikeEntity)

@@ -18,7 +18,7 @@ constructor(
     private val musicLikeBlockRepository: MusicLikeBlockRepository
 ) {
     suspend fun getLikes(): List<MusicLike> {
-        return database.dao.getAllMusicLikes().map { it.toMusicLike() }
+        return database.dao.getCurrentVersionLikes().map { it.toMusicLike() }
     }
 
     @OptIn(DelicateCoroutinesApi::class)
