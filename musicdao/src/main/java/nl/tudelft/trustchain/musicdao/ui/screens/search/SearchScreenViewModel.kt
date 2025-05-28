@@ -58,11 +58,11 @@ class SearchScreenViewModel
                 }
         }
 
-        fun downloadedFirstInListOfAlbums(list: List<Album>): List<Album> {
+        private fun downloadedFirstInListOfAlbums(list: List<Album>): List<Album> {
             // put downloaded albums first
             val downloadedAlbums =
                 list.sortedBy { album ->
-                    album.songs != null && album.songs.isNotEmpty()
+                    !album.songs.isNullOrEmpty()
                 }.reversed()
             return downloadedAlbums
         }

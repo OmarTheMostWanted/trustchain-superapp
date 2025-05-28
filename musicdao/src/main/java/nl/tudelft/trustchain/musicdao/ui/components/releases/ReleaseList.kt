@@ -74,7 +74,7 @@ fun ReleaseListItem(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
-                if (album.songs != null && album.songs.isNotEmpty()) {
+                if (!album.songs.isNullOrEmpty()) {
                     Icon(
                         imageVector = Icons.Default.CheckCircle,
                         tint = MaterialTheme.colors.primary,

@@ -167,7 +167,7 @@ fun ReleaseScreen(
                     )
                 }
                 Header(album, navController = navController)
-                if (album.songs != null && album.songs.isNotEmpty()) {
+                if (!album.songs.isNullOrEmpty()) {
                     val files = album.songs
                     files.map {
                         val isPlayingModifier =
@@ -230,7 +230,7 @@ fun ReleaseScreen(
                                     }
                             )
                         }
-                        if (downloadingTracks == null || downloadingTracks.isEmpty()) {
+                        if (downloadingTracks.isNullOrEmpty()) {
                             Column(
                                 verticalArrangement = Arrangement.Center,
                                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -305,12 +305,6 @@ fun Header(
             modifier = Modifier.fillMaxWidth()
         ) {
             Row {
-                IconButton(onClick = {}) {
-                    Icon(
-                        imageVector = Icons.Outlined.Favorite,
-                        contentDescription = null
-                    )
-                }
                 IconButton(
                     onClick = {
                         navController.navigate(
