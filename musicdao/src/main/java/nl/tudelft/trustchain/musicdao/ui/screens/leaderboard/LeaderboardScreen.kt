@@ -1,6 +1,5 @@
 package nl.tudelft.trustchain.musicdao.ui.screens.leaderboard
 
-import java.util.Base64
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -28,9 +27,9 @@ fun LeaderboardScreen(
     LaunchedEffect(Unit) {
         // Fetch all likes from the repository
         val likes = musicLikeRepository.getLikes()
-        // Map likedMusicId and count likes for each song
+        // Flatten likedSongs and count likes for each song
         likesByMusicId = likes
-            .map { it.likedMusicId } // Map each likedMusicId
+            .flatMap { it.likedSongs } // Flatten the list of liked songs
             .groupingBy { it }
             .eachCount()
     }
