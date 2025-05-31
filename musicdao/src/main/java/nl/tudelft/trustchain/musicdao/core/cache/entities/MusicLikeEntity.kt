@@ -12,14 +12,15 @@ data class MusicLikeEntity(
     @PrimaryKey val id: String,
     val publicKey: String,
     val name: String,
-    val likedMusicId: String,
+    val likedSongs: String, // Store as a JSON string
     val protocolVersion: String
 ) {
     fun toMusicLike(): MusicLike {
         return MusicLike(
             publicKey = publicKey,
             name = name,
-            likedMusicId = likedMusicId,
-            protocolVersion = protocolVersion,)
+            likedMusicId = likedSongs.split(","), // Convert back to a list
+            protocolVersion = protocolVersion
+        )
     }
 }

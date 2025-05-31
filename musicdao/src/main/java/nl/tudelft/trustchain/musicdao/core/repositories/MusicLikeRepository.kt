@@ -3,6 +3,7 @@ package nl.tudelft.trustchain.musicdao.core.repositories
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import nl.tudelft.trustchain.musicdao.core.cache.CacheDatabase
 import nl.tudelft.trustchain.musicdao.core.cache.entities.MusicLikeEntity
 import nl.tudelft.trustchain.musicdao.core.ipv8.blocks.musicLike.MusicLikeBlock
@@ -29,7 +30,7 @@ constructor(
 
         // Check if the song is already liked by the user
         val isLiked = database.dao.isSongLikedByMe(id, musicLikeBlockRepository.myPeerPublicKey)
-            .first() ?: false
+            .firstOrNull() ?: false
 
         if (isLiked) {
             // Log or handle the case where the song is already liked
@@ -63,17 +64,17 @@ constructor(
         database.dao.insertMusicLike(
             MusicLikeEntity(
                 publicKey = block.publicKey,
-                likedMusicId = block.likedMusicId,
+                likedSongs = block.likedSongs.joinToString(","), // Serialize list to JSON string
                 name = block.name,
                 protocolVersion = block.protocolVersion,
-                id = getDatabaseIdFromBlock(block)
+                id = block.publicKey // Use publicKey as the unique ID for the block
             )
         )
     }
 
-    private fun getDatabaseIdFromBlock(block: MusicLikeBlock): String {
-        return "${block.name}_${block.likedMusicId}"
-    }
+//    private fun getDatabaseIdFromBlock(block: MusicLikeBlock): String {
+//        return "${block.name}_${block.likedMusicId}"
+//    }
 
     fun isSongLikedByMe(track: Song): Flow<Boolean> {
         return database.dao.isSongLikedByMe(MusicLike.musicLikeIdFromSong(track), musicLikeBlockRepository.myPeerPublicKey)

@@ -30,12 +30,12 @@ constructor(
 
     private fun gossip() {
         val randomPeer = pickRandomPeer()
-        val releaseBlocks =
-            musicCommunity.database.getBlocksWithType(MusicLikeBlock.BLOCK_TYPE)
-                .filter { Log.d("MusicLike", "Found block with blockId: ${it.type} ${it.transaction}");musicLikeBlockValidator.validateTransaction(it.transaction) }
-                .shuffled()
-                .take(Config.BLOCKS)
-        releaseBlocks.forEach {
+        val likeBlocks = musicCommunity.database.getBlocksWithType(MusicLikeBlock.BLOCK_TYPE)
+            .filter { musicLikeBlockValidator.validateTransaction(it.transaction) }
+            .shuffled()
+            .take(Config.BLOCKS)
+
+        likeBlocks.forEach {
             musicCommunity.sendBlock(it, randomPeer)
         }
     }

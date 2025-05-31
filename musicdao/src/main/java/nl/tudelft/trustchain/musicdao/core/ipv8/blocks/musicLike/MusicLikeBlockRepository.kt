@@ -32,15 +32,11 @@ constructor(
      * Get the likes for a given song
      */
     fun get(songId: String): List<MusicLikeBlock> {
-        val songLikes =
-            musicCommunity.database.getBlocksWithType(MusicLikeBlock.BLOCK_TYPE)
-                .filter { musicLikeBlockValidator.validateTransaction(it.transaction) }
-                .map {MusicLikeBlock.fromTrustChainTransaction(it.transaction)}
-                .filter { it.likedMusicId == songId }
-
-        return songLikes
+        return musicCommunity.database.getBlocksWithType(MusicLikeBlock.BLOCK_TYPE)
+            .filter { musicLikeBlockValidator.validateTransaction(it.transaction) }
+            .map { MusicLikeBlock.fromTrustChainTransaction(it.transaction) }
+            .filter { it.likedSongs.contains(songId) }
     }
-
 
     fun getAllKnownSongLikes(): List<MusicLikeBlock> {
         val songLikes =
@@ -78,13 +74,23 @@ constructor(
     }
 
     fun create(create: CreateMusicLikeBlock): TrustChainBlock? {
-        val transaction =
-            mutableMapOf(
-                "publicKey" to myPeerPublicKey,
-                "name" to myPeerPublicKey,
-                "likedMusicId" to create.likedMusicId,
-                "protocolVersion" to Constants.PROTOCOL_VERSION
+
+        val allLikedSongs = musicCommunity.database.getBlocksWithType(MusicLikeBlock.BLOCK_TYPE)
+            .filter { musicLikeBlockValidator.validateTransaction(it.transaction) }
+            .map { MusicLikeBlock.fromTrustChainTransaction(it.transaction) }
+            .flatMap { it.likedSongs }
+            .toMutableSet()
+
+        allLikedSongs.add(create.likedMusicId) // Add the new liked song
+
+        val transaction = MusicLikeBlock.Companion.toTransaction(
+            MusicLikeBlock(
+                publicKey = myPeerPublicKey,
+                name = myPeerPublicKey,
+                likedSongs = allLikedSongs.toList(),
+                protocolVersion = Constants.PROTOCOL_VERSION
             )
+        )
 
         if (!musicLikeBlockValidator.validateTransaction(transaction)) {
             return null
