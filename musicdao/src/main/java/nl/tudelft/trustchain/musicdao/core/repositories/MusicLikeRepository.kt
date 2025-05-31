@@ -52,6 +52,33 @@ constructor(
         return block
     }
 
+    suspend fun unlikeMusic(track: Song): MusicLikeBlock? {
+        val id = MusicLike.musicLikeIdFromSong(track)
+
+        // Get the current list of liked songs
+        val allLikedSongs = musicLikeBlockRepository.getAllKnownSongLikes()
+            .flatMap { it.likedSongs }
+            .toMutableSet()
+
+        // Remove the song from the list
+        if (!allLikedSongs.remove(id)) {
+            android.util.Log.d("MusicLike", "Song is not liked by the user: $id")
+            return null
+        }
+
+        // Create and publish the updated block
+        val block = musicLikeBlockRepository.create(
+            MusicLikeBlockRepository.Companion.CreateMusicLikeBlock(id)
+        )?.let { MusicLikeBlock.fromTrustChainTransaction(it.transaction) }
+
+        // Update the local cache
+        block?.let {
+            insertBlock(it)
+        }
+
+        return block
+    }
+
     @OptIn(DelicateCoroutinesApi::class)
     suspend fun refreshCache() {
         val musicLikeBlocks = musicLikeBlockRepository.getAllKnownSongLikes()

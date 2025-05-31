@@ -81,7 +81,13 @@ constructor(
             .flatMap { it.likedSongs }
             .toMutableSet()
 
-        allLikedSongs.add(create.likedMusicId) // Add the new liked song
+//        allLikedSongs.add(create.likedMusicId) // Add the new liked song
+        // Update the list of liked songs
+        if (create.likedMusicId in allLikedSongs) {
+            allLikedSongs.remove(create.likedMusicId) // Unlike
+        } else {
+            allLikedSongs.add(create.likedMusicId) // Like
+        }
 
         val transaction = MusicLikeBlock.Companion.toTransaction(
             MusicLikeBlock(

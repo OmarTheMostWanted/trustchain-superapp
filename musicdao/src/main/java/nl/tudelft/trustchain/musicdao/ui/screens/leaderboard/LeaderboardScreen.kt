@@ -28,8 +28,11 @@ fun LeaderboardScreen(
     LaunchedEffect(Unit) {
         // Fetch all likes from the repository
         val likes = musicLikeRepository.getLikes()
-        // Group and count likes by likedMusicId (track.title in current logic)
-        likesByMusicId = likes.groupingBy { it.likedMusicId }.eachCount()
+        // Map likedMusicId and count likes for each song
+        likesByMusicId = likes
+            .map { it.likedMusicId } // Map each likedMusicId
+            .groupingBy { it }
+            .eachCount()
     }
 
     val songsWithLikes = albums
