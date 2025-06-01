@@ -26,10 +26,11 @@ fun LeaderboardScreen(
     var likesByMusicId by remember { mutableStateOf<Map<String, Int>>(emptyMap()) }
 
     LaunchedEffect(Unit) {
-        // Fetch all likes from the repository
-        val likes = musicLikeRepository.getLikes()
-        // Group and count likes by likedMusicId (track.title in current logic)
-        likesByMusicId = likes.groupingBy { it.likedMusicId }.eachCount()
+        while (true) {
+            val likes = musicLikeRepository.getLikes()
+            likesByMusicId = likes.groupingBy { it.likedMusicId }.eachCount()
+            kotlinx.coroutines.delay(1000) // Refresh every second
+        }
     }
 
     val songsWithLikes = albums
