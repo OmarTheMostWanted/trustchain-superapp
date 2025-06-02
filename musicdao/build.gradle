@@ -86,8 +86,6 @@ dependencies {
     api "androidx.appcompat:appcompat:$appcompat_version"
     implementation "com.google.android.material:material:$material_version"
 
-
-
     // BitTorrent/Libtorrent libraries
     implementation 'com.turn:ttorrent-core:1.5'
 
@@ -98,6 +96,7 @@ dependencies {
     api 'org.bitcoinj:bitcoinj-core:0.15.10'
 
     // Testing
+    testImplementation "junit:junit:$junit_version"
     testImplementation "io.mockk:mockk:$mockk_version"
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutines_version"
 
