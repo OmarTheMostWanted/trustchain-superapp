@@ -62,7 +62,7 @@ class MusicGossipingService : Service() {
         super.onCreate()
         releaseBlockGossiper.startGossip(scope)
         artistBlockGossiper.startGossip(scope)
-        // musicLikeGossiper.startGossip(scope)
+        musicLikeGossiper.startGossip(scope)
         scope.launch {
             iterativelyGossipSwarmHealth()
         }
