@@ -98,7 +98,10 @@ dependencies {
     // Testing
     testImplementation "junit:junit:$junit_version"
     testImplementation "io.mockk:mockk:$mockk_version"
+    testImplementation 'io.mockk:mockk-dsl:1.13.9'
+    testImplementation "app.cash.sqldelight:sqlite-driver:$sqldelight_version"
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutines_version"
+    testImplementation 'androidx.test:core-ktx:1.6.1'
 
     // Reading MP3 metadata
     api 'com.mpatric:mp3agic:0.9.1'

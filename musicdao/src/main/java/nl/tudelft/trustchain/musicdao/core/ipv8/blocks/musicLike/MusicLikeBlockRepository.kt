@@ -17,12 +17,10 @@ constructor(
 
     public val myPeerPublicKey = musicCommunity.myPeer.publicKey.keyToBin().toHex()
 
-    suspend fun getOrCrawl(songId: String): List<MusicLikeBlock>? {
+    suspend fun getOrCrawl(songId: String): List<MusicLikeBlock> {
         val block = get(songId)
         Log.d("MusicDao", "getOrCrawl 1: $block $songId")
-        return if (block.isNotEmpty()) {
-            block
-        } else {
+        return block.ifEmpty {
             crawl(songId)
             get(songId)
         }
