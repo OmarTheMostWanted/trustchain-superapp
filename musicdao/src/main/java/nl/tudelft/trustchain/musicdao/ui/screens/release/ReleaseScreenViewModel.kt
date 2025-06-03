@@ -67,20 +67,21 @@ class ReleaseScreenViewModel @Inject constructor(
     ) {
         val block = musicLikeRepository.createMusicLike(track)
         if (block != null) {
-            Log.d("MusicLike", "${block.name} liked ${block.likedSongs.joinToString(", ")}")
+            Log.d("MusicLike",  "liked ${block.likedSongs.joinToString(", ")}")
         }
     }
 
     suspend fun unlikeMusic(track: Song) {
         val block = musicLikeRepository.unlikeMusic(track)
         if (block != null) {
-            Log.d("MusicLike", "${block.name} unliked ${block.likedSongs.joinToString(", ")}")
+            Log.d("MusicLike", "unliked ${block.likedSongs.joinToString(", ")}")
         }
     }
 
     fun isMusicLikedByMe(
         track: Song,
     ): Flow<Boolean> {
+        Log.d("MusicLike", "Checking if song is liked by me: ${track.title}")
         return musicLikeRepository.isSongLikedByMe(track)
     }
 

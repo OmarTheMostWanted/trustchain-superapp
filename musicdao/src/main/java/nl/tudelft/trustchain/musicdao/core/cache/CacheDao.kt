@@ -48,7 +48,7 @@ interface CacheDao {
 //    @Query("SELECT * FROM MusicLikeEntity WHERE protocolVersion is :version")
 //    suspend fun getCurrentVersionLikes(version: String = Constants.PROTOCOL_VERSION): List<MusicLikeEntity>
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertMusicLike(musicLike: MusicLikeEntity)
 
     @Query("SELECT EXISTS(SELECT 1 FROM MusicLikeEntity WHERE likedSongs LIKE '%' || :songId || '%' AND name = :myId)")

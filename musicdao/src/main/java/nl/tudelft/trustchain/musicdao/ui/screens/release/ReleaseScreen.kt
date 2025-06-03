@@ -213,7 +213,7 @@ fun ReleaseScreen(
                                         Icon(
                                             imageVector = Icons.Outlined.Favorite,
                                             contentDescription = if (isLiked) "Unlike" else "Like",
-                                            tint = if (isLiked) Color.Green else Color.Gray // Green when liked, Gray when unliked
+                                            tint = if (isLiked) MaterialTheme.colors.primary else Color.Gray // Green when liked, Gray when unliked
                                         )
                                     }
                                     Icon(
