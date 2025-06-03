@@ -185,18 +185,6 @@ fun ReleaseScreen(
                             trailing = {
                                 val isLiked by viewModel.isMusicLikedByMe(it).collectAsState(initial = false)
                                 Row(verticalAlignment = Alignment.CenterVertically) {
-//                                    IconButton(enabled = !isLiked , onClick = {
-//                                        Toast.makeText(context, "Liked song from album ${album.title}", Toast.LENGTH_SHORT).show()
-//                                        coroutineScope.launch {
-//                                            viewModel.likeMusic(it)
-//                                        }
-//                                    }) {
-//                                        Icon(
-//                                            imageVector = Icons.Outlined.Favorite,
-//                                            contentDescription = "Like",
-//                                            tint = if (isLiked) MaterialTheme.colors.primary else Color.Gray
-//                                        )
-//                                    }
                                     IconButton(
                                         onClick = {
                                             coroutineScope.launch {

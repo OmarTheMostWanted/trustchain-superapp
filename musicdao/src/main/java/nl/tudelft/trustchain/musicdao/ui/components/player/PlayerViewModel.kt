@@ -18,7 +18,6 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import nl.tudelft.trustchain.musicdao.core.repositories.MusicLikeRepository
 import java.io.File
 import javax.inject.Inject
 import kotlin.random.Random
@@ -27,7 +26,6 @@ import kotlin.random.Random
 class PlayerViewModel @Inject constructor(
     // Not sure if context is actually passed correctly
     @ApplicationContext private val context: Context,
-    private val musicLikeRepository: MusicLikeRepository
 ) : ViewModel() {
     private val _playingTrack: MutableStateFlow<Song?> = MutableStateFlow(null)
     val playingTrack: StateFlow<Song?> = _playingTrack

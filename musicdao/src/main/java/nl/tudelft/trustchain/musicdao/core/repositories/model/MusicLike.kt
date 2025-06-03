@@ -2,8 +2,7 @@ package nl.tudelft.trustchain.musicdao.core.repositories.model
 
 class MusicLike (
     val publicKey: String,
-    val name: String,
-    val likedSongs: List<String>, // Updated to store a list of liked song IDs
+    val songName: String,
     val protocolVersion: String
 ) {
 

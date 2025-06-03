@@ -12,7 +12,7 @@ import androidx.navigation.NavController
 import nl.tudelft.trustchain.musicdao.core.repositories.model.Album
 import nl.tudelft.trustchain.musicdao.core.repositories.model.Song
 import androidx.compose.ui.text.style.TextOverflow
-import nl.tudelft.trustchain.musicdao.core.repositories.MusicLikeRepository
+import nl.tudelft.trustchain.musicdao.core.repositories.MusicProfileRepository
 import nl.tudelft.trustchain.musicdao.core.repositories.model.MusicLike
 import nl.tudelft.trustchain.musicdao.ui.navigation.Screen
 
@@ -20,18 +20,18 @@ import nl.tudelft.trustchain.musicdao.ui.navigation.Screen
 fun LeaderboardScreen(
     albums: List<Album>,
     navController: NavController,
-    musicLikeRepository: MusicLikeRepository
+    musicLikeRepository: MusicProfileRepository
 ) {
     var likesByMusicId by remember { mutableStateOf<Map<String, Int>>(emptyMap()) }
 
     LaunchedEffect(Unit) {
         // Fetch all likes from the repository
         val likes = musicLikeRepository.getLikes()
-        // Flatten likedSongs and count likes for each song
-        likesByMusicId = likes
-            .flatMap { it.likedSongs } // Flatten the list of liked songs
-            .groupingBy { it }
-            .eachCount()
+        for (like in likes) {
+            val LikedId = like.songName
+            val likeCount = likesByMusicId.getOrDefault(LikedId, 0) + 1
+            likesByMusicId = likesByMusicId + (LikedId to likeCount) //TODO check if this is correct
+        }
     }
 
     val songsWithLikes = albums

@@ -6,22 +6,20 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import nl.tudelft.ipv8.Peer
-import nl.tudelft.trustchain.musicdao.core.ipv8.blocks.musicLike.MusicLikeBlock
-import nl.tudelft.trustchain.musicdao.core.ipv8.blocks.musicLike.MusicLikeBlockValidator
-import nl.tudelft.trustchain.musicdao.core.ipv8.blocks.releasePublish.ReleasePublishBlock
-import nl.tudelft.trustchain.musicdao.core.ipv8.blocks.releasePublish.ReleasePublishBlockValidator
+import nl.tudelft.trustchain.musicdao.core.ipv8.blocks.musicLike.MusicProfile
+import nl.tudelft.trustchain.musicdao.core.ipv8.blocks.musicLike.MusicProfileBlockValidator
 import javax.inject.Inject
 
-class MusicLikeGossiper
+class MusicProfileGossiper
 @Inject
 constructor(
     private val musicCommunity: MusicCommunity,
-    private val musicLikeBlockValidator: MusicLikeBlockValidator
+    private val musicProfileBlockValidator: MusicProfileBlockValidator
 ) {
     fun startGossip(coroutineScope: CoroutineScope) {
         coroutineScope.launch {
             while (coroutineScope.isActive) {
-                Log.d("MusicLike", "Starting to gossip music likes")
+//                Log.d("MusicProfile", "Starting to gossip music likes")
                 gossip()
                 delay(Config.DELAY)
             }
@@ -30,12 +28,12 @@ constructor(
 
     private fun gossip() {
         val randomPeer = pickRandomPeer()
-        val likeBlocks = musicCommunity.database.getBlocksWithType(MusicLikeBlock.BLOCK_TYPE)
-            .filter { musicLikeBlockValidator.validateTransaction(it.transaction) }
+        val musicProfileBlocks = musicCommunity.database.getBlocksWithType(MusicProfile.BLOCK_TYPE)
+            .filter { musicProfileBlockValidator.validateTransaction(it.transaction) }
             .shuffled()
             .take(Config.BLOCKS)
 
-        likeBlocks.forEach {
+        musicProfileBlocks.forEach {
             musicCommunity.sendBlock(it, randomPeer)
         }
     }

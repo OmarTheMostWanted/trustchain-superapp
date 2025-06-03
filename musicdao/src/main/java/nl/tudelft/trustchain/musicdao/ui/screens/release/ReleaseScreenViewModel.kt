@@ -7,9 +7,6 @@ import nl.tudelft.trustchain.musicdao.core.cache.entities.AlbumEntity
 import nl.tudelft.trustchain.musicdao.core.repositories.model.Album
 import nl.tudelft.trustchain.musicdao.core.torrent.TorrentEngine
 import nl.tudelft.trustchain.musicdao.core.torrent.status.TorrentStatus
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.delay
@@ -18,7 +15,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import nl.tudelft.trustchain.musicdao.core.repositories.MusicLikeRepository
+import nl.tudelft.trustchain.musicdao.core.repositories.MusicProfileRepository
 import nl.tudelft.trustchain.musicdao.core.repositories.model.Song
 import javax.inject.Inject
 
@@ -28,7 +25,7 @@ class ReleaseScreenViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val database: CacheDatabase,
     private val torrentEngine: TorrentEngine,
-    private val musicLikeRepository: MusicLikeRepository
+    private val musicProfileRepository: MusicProfileRepository
 ) : ViewModel() {
 
     private val releaseId: String = checkNotNull(savedStateHandle["releaseId"])
@@ -65,24 +62,28 @@ class ReleaseScreenViewModel @Inject constructor(
     suspend fun likeMusic(
         track: Song,
     ) {
-        val block = musicLikeRepository.createMusicLike(track)
-        if (block != null) {
-            Log.d("MusicLike",  "liked ${block.likedSongs.joinToString(", ")}")
+        Log.d("MusicProfile", "Liking song: ${track.title}")
+        val block = musicProfileRepository.toggleLike(track)
+        if (block == null) {
+            Log.d("MusicProfile", "Failed to like song: ${track.title}")
         }
     }
 
     suspend fun unlikeMusic(track: Song) {
-        val block = musicLikeRepository.unlikeMusic(track)
-        if (block != null) {
-            Log.d("MusicLike", "unliked ${block.likedSongs.joinToString(", ")}")
+        Log.d("MusicProfile", "Unliking song: ${track.title}")
+        val block = musicProfileRepository.toggleLike(track)
+        if (block == null) {
+            Log.d("MusicProfile", "Failed to unlike song: ${track.title}")
         }
+
     }
 
     fun isMusicLikedByMe(
         track: Song,
     ): Flow<Boolean> {
-        Log.d("MusicLike", "Checking if song is liked by me: ${track.title}")
-        return musicLikeRepository.isSongLikedByMe(track)
+        val res = musicProfileRepository.isSongLikedByMe(track)
+        Log.d("MusicProfile", "Checking if song ${track.title} is liked by me")
+        return res
     }
 
 }

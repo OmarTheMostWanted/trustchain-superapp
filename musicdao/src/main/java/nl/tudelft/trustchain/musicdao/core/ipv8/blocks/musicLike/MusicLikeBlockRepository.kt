@@ -8,44 +8,43 @@ import nl.tudelft.trustchain.musicdao.core.ipv8.MusicCommunity
 import nl.tudelft.trustchain.musicdao.core.ipv8.blocks.Constants
 import javax.inject.Inject
 
-class MusicLikeBlockRepository
+
+class MusicProfileBlockRepository
 @Inject
 constructor(
     private val musicCommunity: MusicCommunity,
-    private val musicLikeBlockValidator: MusicLikeBlockValidator
-) {
+    private val musicProfileBlockValidator: MusicProfileBlockValidator,
+    ) {
 
-    public val myPeerPublicKey = musicCommunity.myPeer.publicKey.keyToBin().toHex()
+    val myPeerPublicKey = musicCommunity.myPeer.publicKey.keyToBin().toHex()
 
-    suspend fun getOrCrawl(songId: String): List<MusicLikeBlock>? {
-        val block = get(songId)
-        Log.d("MusicDao", "getOrCrawl 1: $block $songId")
-        return if (block.isNotEmpty()) {
-            block
-        } else {
-            crawl(songId)
-            get(songId)
-        }
-    }
+//    suspend fun getOrCrawl(songId: String): List<MusicProfile>? {
+//        val block = get(songId)
+//        Log.d("MusicDao", "getOrCrawl 1: $block $songId")
+//        return if (block.isNotEmpty()) {
+//            block
+//        } else {
+//            crawl(songId)
+//            get(songId)
+//        }
+//    }
 
     /**
      * Get the likes for a given song
      */
-    fun get(songId: String): List<MusicLikeBlock> {
-        return musicCommunity.database.getBlocksWithType(MusicLikeBlock.BLOCK_TYPE)
-            .filter { musicLikeBlockValidator.validateTransaction(it.transaction) }
-            .map { MusicLikeBlock.fromTrustChainTransaction(it.transaction) }
+    fun get(songId: String): List<MusicProfile> {
+        return musicCommunity.database.getBlocksWithType(MusicProfile.BLOCK_TYPE)
+            .filter { musicProfileBlockValidator.validateTransaction(it.transaction) }
+            .map { MusicProfile.fromTrustChainTransaction(it.transaction) }
             .filter { it.likedSongs.contains(songId) }
     }
 
-    fun getAllKnownSongLikes(): List<MusicLikeBlock> {
-        val songLikes =
-            musicCommunity.database.getBlocksWithType(MusicLikeBlock.BLOCK_TYPE)
-                .filter { musicLikeBlockValidator.validateTransaction(it.transaction) }
-                .map {MusicLikeBlock.fromTrustChainTransaction(it.transaction)}
-
-        return songLikes
+    fun getAll(): List<MusicProfile> { //TODO make sure this gets the newest block
+        return musicCommunity.database.getBlocksWithType(MusicProfile.BLOCK_TYPE)
+            .filter { musicProfileBlockValidator.validateTransaction(it.transaction) }
+            .map { MusicProfile.fromTrustChainTransaction(it.transaction) }
     }
+
 
     @SuppressLint("NewApi")
     private suspend fun crawl(publicKey: String) {
@@ -73,49 +72,34 @@ constructor(
         }
     }
 
-    fun create(create: CreateMusicLikeBlock): TrustChainBlock? {
-
-        val allLikedSongs = musicCommunity.database.getBlocksWithType(MusicLikeBlock.BLOCK_TYPE)
-            .filter { musicLikeBlockValidator.validateTransaction(it.transaction) }
-            .map { MusicLikeBlock.fromTrustChainTransaction(it.transaction) }
-            .flatMap { it.likedSongs }
-            .toMutableSet()
-
-//        allLikedSongs.add(create.likedMusicId) // Add the new liked song
-        // Update the list of liked songs
-        if (create.likedMusicId in allLikedSongs) {
-            allLikedSongs.remove(create.likedMusicId) // Unlike
-        } else {
-            allLikedSongs.add(create.likedMusicId) // Like
-        }
-
-        val transaction = MusicLikeBlock.Companion.toTransaction(
-            MusicLikeBlock(
+    fun create(companion: MusicProfileCompanion): TrustChainBlock? {
+        val transaction = MusicProfile.Companion.toTransaction(
+            MusicProfile(
                 publicKey = myPeerPublicKey,
-                name = myPeerPublicKey,
-                likedSongs = allLikedSongs.toList(),
+                likedSongs = companion.allLikedSongs,
                 protocolVersion = Constants.PROTOCOL_VERSION
             )
         )
-
-        if (!musicLikeBlockValidator.validateTransaction(transaction)) {
+        if (!musicProfileBlockValidator.validateTransaction(transaction)) {
+            Log.e("MusicProfile", "create: Invalid transaction for MusicProfile")
             return null
         }
-
+        Log.d("MusicProfile", "create: Creating MusicProfile block with ${companion.allLikedSongs.toString()}")
         return musicCommunity.createProposalBlock(
-            blockType = MusicLikeBlock.BLOCK_TYPE,
+            blockType = MusicProfile.BLOCK_TYPE,
             transaction = transaction,
             publicKey = musicCommunity.myPeer.publicKey.keyToBin()
         )
     }
 
-    fun toBlock(trustChainBlock: TrustChainBlock): MusicLikeBlock {
-        return MusicLikeBlock.fromTrustChainTransaction(trustChainBlock.transaction)
+    fun toBlock(trustChainBlock: TrustChainBlock): MusicProfile {
+        return MusicProfile.fromTrustChainTransaction(trustChainBlock.transaction)
     }
 
     companion object {
-        data class CreateMusicLikeBlock(
-            val likedMusicId: String
+        data class MusicProfileCompanion(
+            val allLikedSongs: List<String>
+            // tags
         )
     }
 }

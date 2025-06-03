@@ -8,7 +8,7 @@ import nl.tudelft.ipv8.attestation.trustchain.validation.ValidationResult
 import nl.tudelft.trustchain.musicdao.core.ipv8.blocks.Constants
 import javax.inject.Inject
 
-class MusicLikeBlockValidator
+class MusicProfileBlockValidator
     @Inject
     constructor() : TransactionValidator {
         override fun validate(
@@ -29,18 +29,16 @@ class MusicLikeBlockValidator
         fun validateTransaction(transaction: TrustChainTransaction): Boolean {
             val publicKey = transaction["publicKey"]
             val likedSongs = transaction["likedSongs"]
-            val name = transaction["name"]
             val protocolVersion = transaction["protocolVersion"]
 
             return (
                 publicKey is String && publicKey.isNotEmpty() &&
                     likedSongs is List<*> && likedSongs.all { it is String } &&
-                    name is String && name.isNotEmpty() &&
                     protocolVersion is String && protocolVersion == Constants.PROTOCOL_VERSION
                 )
         }
         companion object {
-            const val BLOCK_TYPE = MusicLikeBlock.BLOCK_TYPE
+            const val BLOCK_TYPE = MusicProfile.BLOCK_TYPE
         }
     }
 

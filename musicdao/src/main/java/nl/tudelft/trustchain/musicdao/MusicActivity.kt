@@ -24,7 +24,6 @@ import nl.tudelft.trustchain.musicdao.core.torrent.TorrentEngine
 import nl.tudelft.trustchain.musicdao.core.wallet.WalletService
 import nl.tudelft.trustchain.musicdao.ui.MusicDAOApp
 import nl.tudelft.trustchain.musicdao.ui.screens.profile.ProfileScreenViewModel
-import nl.tudelft.trustchain.musicdao.ui.screens.release.ReleaseScreenViewModel
 import com.frostwire.jlibtorrent.SessionManager
 import com.google.common.util.concurrent.Service
 import dagger.hilt.EntryPoint
@@ -33,7 +32,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.components.ActivityComponent
 import kotlinx.coroutines.*
 import nl.tudelft.trustchain.musicdao.core.coin.WalletManager
-import nl.tudelft.trustchain.musicdao.core.repositories.MusicLikeRepository
+import nl.tudelft.trustchain.musicdao.core.repositories.MusicProfileRepository
 import javax.inject.Inject
 
 /**
@@ -48,7 +47,7 @@ class MusicActivity : AppCompatActivity() {
     lateinit var artistRepository: ArtistRepository
 
     @Inject
-    lateinit var musicLikeRepository: MusicLikeRepository
+    lateinit var profileRepository: MusicProfileRepository
 
     @OptIn(DelicateCoroutinesApi::class)
     @Inject
@@ -84,7 +83,7 @@ class MusicActivity : AppCompatActivity() {
         lifecycleScope.launchWhenStarted {
             setupMusicCommunity.registerListeners()
             albumRepository.refreshCache()
-            musicLikeRepository.refreshCache()
+            profileRepository.refreshCache()
             torrentEngine.seedStrategy()
         }
         iterativelyFetchReleasesAndMusicLikes()
@@ -240,7 +239,7 @@ class MusicActivity : AppCompatActivity() {
         lifecycleScope.launchWhenStarted {
             while (isActive) {
                 albumRepository.refreshCache()
-                musicLikeRepository.refreshCache()
+//                profileRepository.refreshCache()
                 delay(3000)
             }
         }

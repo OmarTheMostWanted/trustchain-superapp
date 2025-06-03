@@ -12,7 +12,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import nl.tudelft.trustchain.musicdao.core.repositories.MusicLikeRepository
+import nl.tudelft.trustchain.musicdao.core.repositories.MusicProfileRepository
 import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 
@@ -22,7 +22,7 @@ class DebugScreenViewModel
     @Inject
     constructor(
         private val torrentEngine: TorrentEngine,
-        private val musicLikeRepository: MusicLikeRepository
+        private val musicLikeRepository: MusicProfileRepository
     ) : ViewModel() {
         private val _status: MutableStateFlow<List<TorrentStatus>> = MutableStateFlow(listOf())
         val status: StateFlow<List<TorrentStatus>> = _status
@@ -51,7 +51,7 @@ class DebugScreenViewModel
                 val likes = musicLikeRepository.getLikes()
                 Log.d("MusicLike", "Getting likes")
                 for (like in likes) {
-                    Log.d("MusicLike", "${like.likedSongs} liked by ${like.name}")
+                    Log.d("MusicLike", "${like.songName} liked by ${like.publicKey}")
                 }
                 Log.d("MusicLike", "Got likes")
             }

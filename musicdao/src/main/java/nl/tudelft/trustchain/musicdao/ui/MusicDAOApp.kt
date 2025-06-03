@@ -24,7 +24,6 @@ import nl.tudelft.trustchain.musicdao.ui.navigation.Screen
 import nl.tudelft.trustchain.musicdao.ui.screens.profile.MyProfileScreenViewModel
 import nl.tudelft.trustchain.musicdao.ui.styling.MusicDAOTheme
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
-import nl.tudelft.trustchain.musicdao.core.repositories.MusicLikeRepository
 import nl.tudelft.trustchain.musicdao.ui.navigation.BottomNavigationBar
 
 @ExperimentalAnimationApi
