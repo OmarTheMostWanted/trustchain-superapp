@@ -30,7 +30,7 @@ fun LeaderboardScreen(
         for (like in likes) {
             val LikedId = like.songName
             val likeCount = likesByMusicId.getOrDefault(LikedId, 0) + 1
-            likesByMusicId = likesByMusicId + (LikedId to likeCount) //TODO check if this is correct
+            likesByMusicId = likesByMusicId + (LikedId to likeCount)
         }
     }
 

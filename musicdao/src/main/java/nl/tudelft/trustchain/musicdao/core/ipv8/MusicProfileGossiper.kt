@@ -1,10 +1,12 @@
 package nl.tudelft.trustchain.musicdao.core.ipv8
 
+import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import nl.tudelft.ipv8.Peer
+import nl.tudelft.ipv8.util.toHex
 import nl.tudelft.trustchain.musicdao.core.ipv8.blocks.musicLike.MusicProfile
 import nl.tudelft.trustchain.musicdao.core.ipv8.blocks.musicLike.MusicProfileBlockValidator
 import javax.inject.Inject
@@ -27,15 +29,45 @@ constructor(
 
     private fun gossip() {
         val randomPeer = pickRandomPeer()
-        val musicProfileBlocks = musicCommunity.database.getBlocksWithType(MusicProfile.BLOCK_TYPE)
-            .filter { musicProfileBlockValidator.validateTransaction(it.transaction) }
-            .shuffled()
-            .take(Config.BLOCKS)
-
-        musicProfileBlocks.forEach {
-            musicCommunity.sendBlock(it, randomPeer)
+        if (randomPeer == null) {
+            Log.d("MusicProfile", "No peers available for gossiping music profile")
+            return
         }
+
+        val validTrustChainBlocks =
+            musicCommunity.database.getBlocksWithType(MusicProfile.BLOCK_TYPE)
+                .filter { musicProfileBlockValidator.validateTransaction(it.transaction) }
+
+        Log.d(
+            "MusicProfile",
+            "Gossiping music profile blocks, found ${validTrustChainBlocks.size} valid blocks"
+        )
+
+        val groupedByPublicKey = validTrustChainBlocks.groupBy { it.publicKey.toHex() }
+
+        val newestBlocks = groupedByPublicKey.map { entry ->
+            entry.value.maxByOrNull { it.timestamp } ?: entry.value.first()
+        }
+
+        newestBlocks.shuffled().take(Config.BLOCKS).forEach { block ->
+            musicCommunity.sendBlock(block, randomPeer)
+        }
+
+        Log.d(
+            "MusicProfile",
+            "Gossiped ${newestBlocks.size} unique music profile blocks to peer ${
+                randomPeer.publicKey.keyToBin().toHex()
+            }"
+        )
+
+//        val musicProfileBlocks = musicCommunity.database.getBlocksWithType(MusicProfile.BLOCK_TYPE)
+//            .filter { musicProfileBlockValidator.validateTransaction(it.transaction) }
+//            .shuffled()
+//            .take(Config.BLOCKS)
+//        musicProfileBlocks.forEach {
+//            musicCommunity.sendBlock(it, randomPeer)
     }
+
 
     object Config {
         const val BLOCKS = 10

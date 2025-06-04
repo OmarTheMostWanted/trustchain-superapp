@@ -39,7 +39,7 @@ constructor(
             .filter { it.likedSongs.contains(songId) }
     }
 
-    fun getAll(): List<MusicProfile> { //TODO make sure this gets the newest block
+    fun getAll(): List<MusicProfile> {
         val validTrustChainBlocks =  musicCommunity.database.getBlocksWithType(MusicProfile.BLOCK_TYPE)
             .filter { musicProfileBlockValidator.validateTransaction(it.transaction) }
 
