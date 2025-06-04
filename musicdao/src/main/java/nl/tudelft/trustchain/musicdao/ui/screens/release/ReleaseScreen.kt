@@ -185,16 +185,23 @@ fun ReleaseScreen(
                             trailing = {
                                 val isLiked by viewModel.isMusicLikedByMe(it).collectAsState(initial = false)
                                 Row(verticalAlignment = Alignment.CenterVertically) {
-                                    IconButton(enabled = !isLiked , onClick = {
-                                        Toast.makeText(context, "Liked song from album ${album.title}", Toast.LENGTH_SHORT).show()
-                                        coroutineScope.launch {
-                                            viewModel.likeMusic(it)
+                                    IconButton(
+                                        onClick = {
+                                            coroutineScope.launch {
+                                                if (isLiked) {
+                                                    viewModel.unlikeMusic(it) // Call unlike function
+                                                    Toast.makeText(context, "Unliked song from album ${album.title}", Toast.LENGTH_SHORT).show()
+                                                } else {
+                                                    viewModel.likeMusic(it) // Call like function
+                                                    Toast.makeText(context, "Liked song from album ${album.title}", Toast.LENGTH_SHORT).show()
+                                                }
+                                            }
                                         }
-                                    }) {
+                                    ) {
                                         Icon(
                                             imageVector = Icons.Outlined.Favorite,
-                                            contentDescription = "Like",
-                                            tint = if (isLiked) MaterialTheme.colors.primary else Color.Gray
+                                            contentDescription = if (isLiked) "Unlike" else "Like",
+                                            tint = if (isLiked) MaterialTheme.colors.primary else Color.Gray // Green when liked, Gray when unliked
                                         )
                                     }
                                     Icon(

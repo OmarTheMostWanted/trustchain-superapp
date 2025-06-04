@@ -1,7 +1,7 @@
 package nl.tudelft.trustchain.musicdao.core.ipv8
 
-import nl.tudelft.trustchain.musicdao.core.ipv8.blocks.musicLike.MusicLikeBlockSigner
-import nl.tudelft.trustchain.musicdao.core.ipv8.blocks.musicLike.MusicLikeBlockValidator
+import nl.tudelft.trustchain.musicdao.core.ipv8.blocks.musicLike.MusicProfileBlockSigner
+import nl.tudelft.trustchain.musicdao.core.ipv8.blocks.musicLike.MusicProfileBlockValidator
 import nl.tudelft.trustchain.musicdao.core.ipv8.blocks.releasePublish.ReleasePublishBlockSigner
 import nl.tudelft.trustchain.musicdao.core.ipv8.blocks.releasePublish.ReleasePublishBlockValidator
 import javax.inject.Inject
@@ -12,8 +12,8 @@ class SetupMusicCommunity
         private val musicCommunity: MusicCommunity,
         private val releasePublishBlockSigner: ReleasePublishBlockSigner,
         private val releasePublishBlockValidator: ReleasePublishBlockValidator,
-        private val musicLikeBlockSigner: MusicLikeBlockSigner,
-        private val musicLikeBlockValidator: MusicLikeBlockValidator
+        private val profileBlockSigner: MusicProfileBlockSigner,
+        private val profileBlockValidator: MusicProfileBlockValidator
     ) {
         fun registerListeners() {
             musicCommunity.registerTransactionValidator(
@@ -25,12 +25,12 @@ class SetupMusicCommunity
                 releasePublishBlockSigner
             )
             musicCommunity.registerTransactionValidator(
-                MusicLikeBlockSigner.BLOCK_TYPE,
-                musicLikeBlockValidator
+                MusicProfileBlockSigner.BLOCK_TYPE,
+                profileBlockValidator
             )
             musicCommunity.registerBlockSigner(
-                MusicLikeBlockSigner.BLOCK_TYPE,
-                musicLikeBlockSigner
+                MusicProfileBlockValidator.BLOCK_TYPE,
+                profileBlockSigner
             )
         }
     }

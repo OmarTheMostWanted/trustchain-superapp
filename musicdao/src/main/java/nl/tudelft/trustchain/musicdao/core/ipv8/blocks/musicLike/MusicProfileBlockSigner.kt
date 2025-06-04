@@ -5,7 +5,7 @@ import nl.tudelft.ipv8.attestation.trustchain.TrustChainBlock
 import nl.tudelft.trustchain.musicdao.core.ipv8.MusicCommunity
 import javax.inject.Inject
 
-class MusicLikeBlockSigner
+class MusicProfileBlockSigner
 @Inject
 constructor(val musicCommunity: MusicCommunity) :
     BlockSigner {
@@ -13,6 +13,6 @@ constructor(val musicCommunity: MusicCommunity) :
         musicCommunity.createAgreementBlock(block, mapOf<Any?, Any?>())
     }
     companion object {
-        const val BLOCK_TYPE = MusicLikeBlock.BLOCK_TYPE
+        const val BLOCK_TYPE = MusicProfile.BLOCK_TYPE
     }
 }

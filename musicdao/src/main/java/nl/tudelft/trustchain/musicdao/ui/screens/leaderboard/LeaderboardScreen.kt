@@ -1,6 +1,5 @@
 package nl.tudelft.trustchain.musicdao.ui.screens.leaderboard
 
-import java.util.Base64
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -13,7 +12,7 @@ import androidx.navigation.NavController
 import nl.tudelft.trustchain.musicdao.core.repositories.model.Album
 import nl.tudelft.trustchain.musicdao.core.repositories.model.Song
 import androidx.compose.ui.text.style.TextOverflow
-import nl.tudelft.trustchain.musicdao.core.repositories.MusicLikeRepository
+import nl.tudelft.trustchain.musicdao.core.repositories.MusicProfileRepository
 import nl.tudelft.trustchain.musicdao.core.repositories.model.MusicLike
 import nl.tudelft.trustchain.musicdao.ui.navigation.Screen
 
@@ -21,15 +20,18 @@ import nl.tudelft.trustchain.musicdao.ui.navigation.Screen
 fun LeaderboardScreen(
     albums: List<Album>,
     navController: NavController,
-    musicLikeRepository: MusicLikeRepository
+    musicLikeRepository: MusicProfileRepository
 ) {
     var likesByMusicId by remember { mutableStateOf<Map<String, Int>>(emptyMap()) }
 
     LaunchedEffect(Unit) {
         // Fetch all likes from the repository
         val likes = musicLikeRepository.getLikes()
-        // Group and count likes by likedMusicId (track.title in current logic)
-        likesByMusicId = likes.groupingBy { it.likedMusicId }.eachCount()
+        for (like in likes) {
+            val LikedId = like.songName
+            val likeCount = likesByMusicId.getOrDefault(LikedId, 0) + 1
+            likesByMusicId = likesByMusicId + (LikedId to likeCount)
+        }
     }
 
     val songsWithLikes = albums
