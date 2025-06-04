@@ -1,6 +1,5 @@
 package nl.tudelft.trustchain.musicdao.core.ipv8
 
-import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
