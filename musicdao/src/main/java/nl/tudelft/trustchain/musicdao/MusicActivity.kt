@@ -239,7 +239,7 @@ class MusicActivity : AppCompatActivity() {
         lifecycleScope.launchWhenStarted {
             while (isActive) {
                 albumRepository.refreshCache()
-//                profileRepository.refreshCache()
+                profileRepository.refreshCache()
                 delay(3000)
             }
         }

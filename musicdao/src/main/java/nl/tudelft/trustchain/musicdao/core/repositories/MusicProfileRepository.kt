@@ -69,7 +69,6 @@ constructor(
         val block = musicProfileBlockRepository.create(companion)
             ?.let { MusicProfile.fromTrustChainTransaction(it.transaction) }
 
-//        refreshCache()
 
         return block
     }
@@ -79,27 +78,36 @@ constructor(
     @OptIn(DelicateCoroutinesApi::class)
     suspend fun refreshCache() {
         val musicLikeBlocks = musicProfileBlockRepository.getAll()
-        val remoteLikedSongs = musicLikeBlocks.flatMap { it.likedSongs }.toSet()
-        val localLikedSongs = database.dao.getCurrentVersionLikes().map { it.songName }.toSet()
 
-        // Find songs that need to be removed from the local database
-        val songsToRemove = localLikedSongs - remoteLikedSongs
+        // Each block contains the latest liked songs for a user, update the database accordingly
+        for (block in musicLikeBlocks) {
+            Log.d("MusicProfile", "Refreshing cache for block: ${block.publicKey}")
+            val userPublicKey = block.publicKey
+            val likedSongs = block.likedSongs
+            val localLikedSongs =
+                (database.dao.getAllLikedSongsByUser(userPublicKey).firstOrNull() ?: emptyList()).toSet()
+            val remoteLikedSongs = likedSongs.toSet()
 
-        // Remove songs that are no longer liked remotely
-        songsToRemove.forEach { songName ->
-            database.dao.removeLikedSong(
-                userPublicKey = musicProfileBlockRepository.myPeerPublicKey,
-                songName = songName
-            )
-        }
+            // Find songs to add
+            val songsToAdd = remoteLikedSongs - localLikedSongs.map { it.songName }.toSet()
 
-        // Update the local database with the latest music likes
-        musicLikeBlocks.forEach {
-            it.likedSongs.forEach { songName ->
+            for (song in songsToAdd) {
+                Log.d("MusicProfile", "Adding liked song: $song for user: $userPublicKey")
                 database.dao.addLikedSong(
-                    userPublicKey = it.publicKey,
-                    songName = songName,
-                    protocolVersion = it.protocolVersion
+                    userPublicKey = userPublicKey,
+                    songName = song,
+                    protocolVersion = PROTOCOL_VERSION
+                )
+            }
+
+            // Find songs to remove
+            val songsToRemove = localLikedSongs.map { it.songName }.toSet() - remoteLikedSongs
+
+            for (song in songsToRemove) {
+                Log.d("MusicProfile", "Removing liked song: $song for user: $userPublicKey")
+                database.dao.removeLikedSong(
+                    userPublicKey = userPublicKey,
+                    songName = song
                 )
             }
         }
