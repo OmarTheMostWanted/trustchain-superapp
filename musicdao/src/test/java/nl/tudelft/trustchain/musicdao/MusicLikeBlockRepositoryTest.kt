@@ -1,7 +1,6 @@
 package nl.tudelft.trustchain.musicdao
 
 import io.mockk.*
-import kotlinx.coroutines.runBlocking
 import nl.tudelft.ipv8.attestation.trustchain.TrustChainBlock
 import nl.tudelft.ipv8.keyvault.PublicKey
 import nl.tudelft.ipv8.util.toHex
@@ -19,14 +18,16 @@ class MusicLikeBlockRepositoryTest {
     private lateinit var repository: MusicLikeBlockRepository
     private lateinit var mockCommunity: MusicCommunity
     private lateinit var mockValidator: MusicLikeBlockValidator
-    private lateinit var mockBlock: TrustChainBlock
+    private lateinit var mockMusicLikeBlock: MusicLikeBlock
+    private lateinit var mockTrustchainBlock: TrustChainBlock
     private lateinit var mockPublicKey: PublicKey
 
     @Before
     fun setup() {
         mockCommunity = mockk(relaxed = true)
         mockValidator = mockk()
-        mockBlock = mockk()
+        mockMusicLikeBlock = mockk()
+        mockTrustchainBlock = mockk()
         mockPublicKey = mockk()
         every { mockPublicKey.keyToBin() } returns byteArrayOf(0, 0, 0)
         every { mockCommunity.myPeer.publicKey } returns mockPublicKey
@@ -45,10 +46,10 @@ class MusicLikeBlockRepositoryTest {
                 transaction = any(),
                 publicKey = any()
             )
-        } returns mockBlock
+        } returns mockTrustchainBlock
 
         val result = repository.create(create)
-        assertEquals(mockBlock, result)
+        assertEquals(mockTrustchainBlock, result)
 
         val transaction = expectedTransaction.captured
         assertEquals(mockPublicKey.keyToBin().toHex(), transaction["publicKey"])
@@ -67,10 +68,16 @@ class MusicLikeBlockRepositoryTest {
 
     @Test
     fun testMappedBlocks() {
-        val mockTrustBlock = mockk<TrustChainBlock>()
-        val mockMusicLikeBlock = mockk<MusicLikeBlock>()
+        mockkObject(MusicLikeBlock.Companion)
+        every { mockTrustchainBlock.transaction } returns
+            mapOf(
+                "likedMusicId" to "song1",
+                "publicKey" to "pubKey",
+                "protocolVersion" to Constants.PROTOCOL_VERSION
+            )
+
         every { mockValidator.validateTransaction(any()) } returns true
-        every { mockCommunity.database.getBlocksWithType(MusicLikeBlock.BLOCK_TYPE) } returns listOf(mockTrustBlock)
+        every { mockCommunity.database.getBlocksWithType(MusicLikeBlock.BLOCK_TYPE) } returns listOf(mockTrustchainBlock)
         every { MusicLikeBlock.fromTrustChainTransaction(any()) } returns mockMusicLikeBlock
         every { mockMusicLikeBlock.likedMusicId } returns "song1"
 
@@ -81,20 +88,33 @@ class MusicLikeBlockRepositoryTest {
 
     @Test
     fun testFilterInvalid() {
+        mockkObject(MusicLikeBlock.Companion)
         every { mockValidator.validateTransaction(any()) } returns false
-        every { mockCommunity.database.getBlocksWithType(MusicLikeBlock.BLOCK_TYPE) } returns listOf(mockk())
+        every { mockCommunity.database.getBlocksWithType(MusicLikeBlock.BLOCK_TYPE) } returns listOf(mockTrustchainBlock)
+        every { mockTrustchainBlock.transaction } returns
+            mapOf(
+                "likedMusicId" to "invalidSong",
+                "publicKey" to "pubKey",
+                "protocolVersion" to Constants.PROTOCOL_VERSION
+            )
 
-        val result = repository.get("invalidSongId")
+        val result = repository.get("invalidSong")
         assertTrue(result.isEmpty())
     }
 
     @Test
     fun testGetAllKnownSongLikes() {
-        val mockTrustBlock = mockk<TrustChainBlock>()
+        mockkObject(MusicLikeBlock.Companion)
         val mockMusicLikeBlock = mockk<MusicLikeBlock>()
         every { mockValidator.validateTransaction(any()) } returns true
-        every { mockCommunity.database.getBlocksWithType(MusicLikeBlock.BLOCK_TYPE) } returns listOf(mockTrustBlock)
+        every { mockCommunity.database.getBlocksWithType(MusicLikeBlock.BLOCK_TYPE) } returns listOf(mockTrustchainBlock)
         every { MusicLikeBlock.fromTrustChainTransaction(any()) } returns mockMusicLikeBlock
+        every { mockTrustchainBlock.transaction } returns
+            mapOf(
+                "likedMusicId" to "song1",
+                "publicKey" to "pubKey",
+                "protocolVersion" to Constants.PROTOCOL_VERSION
+            )
 
         val result = repository.getAllKnownSongLikes()
         assertEquals(1, result.size)
@@ -102,28 +122,14 @@ class MusicLikeBlockRepositoryTest {
     }
 
     @Test
-    fun testGetOrCrawl() =
-        runBlocking {
-            val mockMusicLikeBlock = mockk<MusicLikeBlock>()
-            mockkObject(MusicLikeBlock.Companion)
-            every { mockValidator.validateTransaction(any()) } returns true
-            every { mockCommunity.database.getBlocksWithType(MusicLikeBlock.BLOCK_TYPE) } returns listOf(mockk())
-            every { MusicLikeBlock.fromTrustChainTransaction(any()) } returns mockMusicLikeBlock
-            coEvery { mockCommunity.network.getVerifiedByPublicKeyBin(any()) } returns null
-
-            val result = repository.getOrCrawl("song1")
-            assertEquals(1, result.size)
-        }
-
-    @Test
     fun testToBlock() {
         val transaction = mapOf("likedMusicId" to "id", "name" to "test", "protocolVersion" to "1", "publicKey" to "pk")
-        every { mockBlock.transaction } returns transaction
+        every { mockTrustchainBlock.transaction } returns transaction
         mockkObject(MusicLikeBlock.Companion)
         val expected = mockk<MusicLikeBlock>()
         every { MusicLikeBlock.fromTrustChainTransaction(transaction) } returns expected
 
-        val result = repository.toBlock(mockBlock)
+        val result = repository.toBlock(mockTrustchainBlock)
         assertEquals(expected, result)
     }
 }
