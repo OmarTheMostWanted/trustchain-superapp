@@ -14,28 +14,29 @@ class SwarmHealth(
     val numSeeds: UInt,
     // Timestamp is saved as Date.getTime format
     val timestamp: ULong = Date().time.toULong()
-) :
-    Comparable<SwarmHealth>, Serializable {
+) : Comparable<SwarmHealth>,
+    Serializable {
     override fun compareTo(other: SwarmHealth): Int {
         if (numSeeds + numPeers < other.numSeeds + other.numPeers) return -1
         if (numSeeds + numPeers == other.numSeeds + other.numPeers) return 0
         return 1
     }
 
-    override fun serialize(): ByteArray {
-        return serializeVarLen(infoHash.toByteArray(Charsets.US_ASCII)) +
+    override fun serialize(): ByteArray =
+        serializeVarLen(infoHash.toByteArray(Charsets.US_ASCII)) +
             serializeUInt(numPeers) +
             serializeUInt(numSeeds) +
             serializeULong(timestamp)
-    }
 
     /**
      * Test if all properties are equal of two objects; mainly useful for unit testing
      */
     override fun equals(other: Any?): Boolean {
         if (other !is SwarmHealth) return false
-        return infoHash == other.infoHash && numPeers == other.numPeers &&
-            numSeeds == other.numSeeds && timestamp == other.timestamp
+        return infoHash == other.infoHash &&
+            numPeers == other.numPeers &&
+            numSeeds == other.numSeeds &&
+            timestamp == other.timestamp
     }
 
     /**

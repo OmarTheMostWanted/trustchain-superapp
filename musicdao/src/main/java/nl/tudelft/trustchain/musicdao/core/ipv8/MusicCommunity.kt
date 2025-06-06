@@ -33,9 +33,7 @@ class MusicCommunity(
         private val database: TrustChainStore,
         private val crawler: TrustChainCrawler = TrustChainCrawler()
     ) : Overlay.Factory<MusicCommunity>(MusicCommunity::class.java) {
-        override fun create(): MusicCommunity {
-            return MusicCommunity(settings, database, crawler)
-        }
+        override fun create(): MusicCommunity = MusicCommunity(settings, database, crawler)
     }
 
     init {
@@ -99,7 +97,7 @@ class MusicCommunity(
     }
 
     /**
-     * Filter local databse to find a release block that matches a certain title or artist, using
+     * Filter local database to find a release block that matches a certain title or artist, using
      * keyword search
      */
     @SuppressLint("NewApi")
@@ -123,17 +121,14 @@ class MusicCommunity(
         return peers.random()
     }
 
-    fun publicKeyHex(): String {
-        return this.myPeer.publicKey.keyToBin().toHex()
-    }
+    fun publicKeyHex(): String =
+        this.myPeer.publicKey
+            .keyToBin()
+            .toHex()
 
-    fun publicKeyStringToPublicKey(publicKey: String): PublicKey {
-        return defaultCryptoProvider.keyFromPublicBin(publicKey.hexToBytes())
-    }
+    fun publicKeyStringToPublicKey(publicKey: String): PublicKey = defaultCryptoProvider.keyFromPublicBin(publicKey.hexToBytes())
 
-    fun publicKeyStringToByteArray(publicKey: String): ByteArray {
-        return publicKeyStringToPublicKey(publicKey).keyToBin()
-    }
+    fun publicKeyStringToByteArray(publicKey: String): ByteArray = publicKeyStringToPublicKey(publicKey).keyToBin()
 
     object MessageId {
         const val KEYWORD_SEARCH_MESSAGE = 10
