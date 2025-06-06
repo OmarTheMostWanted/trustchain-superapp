@@ -43,6 +43,7 @@ class ReleaseScreenViewModel @Inject constructor(
             saturatedReleaseState = releaseLiveData.map { it.toAlbum() }
 
             val release = database.dao.get(releaseId)
+            Log.d("MusicProfile", "Fetched release ${release.title} with magnet ${release.magnet}")
 
             release.let { _release ->
                 if (!_release.isDownloaded) {

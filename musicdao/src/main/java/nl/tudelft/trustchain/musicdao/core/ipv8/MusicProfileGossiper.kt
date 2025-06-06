@@ -38,10 +38,10 @@ constructor(
             musicCommunity.database.getBlocksWithType(MusicProfile.BLOCK_TYPE)
                 .filter { musicProfileBlockValidator.validateTransaction(it.transaction) }
 
-        Log.d(
-            "MusicProfile",
-            "Gossiping music profile blocks, found ${validTrustChainBlocks.size} valid blocks"
-        )
+//        Log.d(
+//            "MusicProfile",
+//            "Gossiping music profile blocks, found ${validTrustChainBlocks.size} valid blocks"
+//        )
 
         val groupedByPublicKey = validTrustChainBlocks.groupBy { it.publicKey.toHex() }
 
@@ -53,12 +53,12 @@ constructor(
             musicCommunity.sendBlock(block, randomPeer)
         }
 
-        Log.d(
-            "MusicProfile",
-            "Gossiped ${newestBlocks.size} unique music profile blocks to peer ${
-                randomPeer.publicKey.keyToBin().toHex()
-            }"
-        )
+//        Log.d(
+//            "MusicProfile",
+//            "Gossiped ${newestBlocks.size} unique music profile blocks to peer ${
+//                randomPeer.publicKey.keyToBin().toHex()
+//            }"
+//        )
 
 //        val musicProfileBlocks = musicCommunity.database.getBlocksWithType(MusicProfile.BLOCK_TYPE)
 //            .filter { musicProfileBlockValidator.validateTransaction(it.transaction) }
