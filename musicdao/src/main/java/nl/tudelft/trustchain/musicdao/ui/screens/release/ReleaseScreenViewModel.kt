@@ -86,4 +86,13 @@ class ReleaseScreenViewModel @Inject constructor(
         return res
     }
 
+    suspend fun toggleTag(song: Song, tag: String) {
+        musicProfileRepository.toggleTag(song, tag)
+    }
+
+    suspend fun getSelectedTags(song: Song): List<String> {
+        return musicProfileRepository.getUserTagsForSong(song)
+    }
+
+
 }

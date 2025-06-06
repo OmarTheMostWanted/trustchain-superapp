@@ -30,11 +30,20 @@ class MusicProfileBlockValidator
             val publicKey = transaction["publicKey"]
             val likedSongs = transaction["likedSongs"]
             val protocolVersion = transaction["protocolVersion"]
+            val tags = transaction["tags"]
+
+            val isValidTags = tags == null || (
+                tags is Map<*, *> &&
+                    tags.keys.all { it is String } &&
+                    tags.values.all { it is List<*> && it.all { tag -> tag is String } }
+                )
+
 
             return (
                 publicKey is String && publicKey.isNotEmpty() &&
                     likedSongs is List<*> && likedSongs.all { it is String } &&
-                    protocolVersion is String && protocolVersion == Constants.PROTOCOL_VERSION
+                    protocolVersion is String && protocolVersion == Constants.PROTOCOL_VERSION &&
+                    isValidTags
                 )
         }
         companion object {

@@ -95,7 +95,8 @@ constructor(
             MusicProfile(
                 publicKey = myPeerPublicKey,
                 likedSongs = companion.allLikedSongs,
-                protocolVersion = Constants.PROTOCOL_VERSION
+                protocolVersion = Constants.PROTOCOL_VERSION,
+                tags = companion.allTags
             )
         )
         if (!musicProfileBlockValidator.validateTransaction(transaction)) {
@@ -116,7 +117,8 @@ constructor(
 
     companion object {
         data class MusicProfileCompanion(
-            val allLikedSongs: List<String>
+            val allLikedSongs: List<String>,
+            val allTags: Map<String, List<String>>
             // tags
         )
     }
