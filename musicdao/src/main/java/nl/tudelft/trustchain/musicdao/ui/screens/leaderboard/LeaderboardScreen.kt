@@ -1,6 +1,5 @@
 package nl.tudelft.trustchain.musicdao.ui.screens.leaderboard
 
-import java.util.Base64
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -25,21 +24,20 @@ fun LeaderboardScreen(
 ) {
     var likesByMusicId by remember { mutableStateOf<Map<String, Int>>(emptyMap()) }
 
+    // Group and count likes by likedMusicId (track.title in current logic)
     LaunchedEffect(Unit) {
-        // Fetch all likes from the repository
         val likes = musicLikeRepository.getLikes()
-        // Group and count likes by likedMusicId (track.title in current logic)
         likesByMusicId = likes.groupingBy { it.likedMusicId }.eachCount()
     }
 
-    val songsWithLikes = albums
-        .flatMap { it.songs.orEmpty() }
-        .distinctBy { song -> song.artist to song.title }
-        .map { song ->
-            val likeCount = likesByMusicId[MusicLike.musicLikeIdFromSong(song)] ?: 0
-            song to likeCount
-        }
-        .sortedByDescending { it.second }
+    val songsWithLikes =
+        albums
+            .flatMap { it.songs.orEmpty() }
+            .distinctBy { song -> song.artist to song.title }
+            .map { song ->
+                val likeCount = likesByMusicId[MusicLike.musicLikeIdFromSong(song)] ?: 0
+                song to likeCount
+            }.sortedByDescending { it.second }
 
     Scaffold(
         topBar = {
@@ -51,19 +49,20 @@ fun LeaderboardScreen(
         }
     ) { paddingValues ->
         LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .padding(16.dp)
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .padding(16.dp)
         ) {
             item(0) {
                 Divider()
             }
             itemsIndexed(songsWithLikes) { index, (song, likes) ->
-                // Find the album this song belongs to
-                val album = albums.firstOrNull {
-                    it.songs?.any { s -> s.title ==  song.title && s.artist == song.artist } == true
-                }
+                val album =
+                    albums.firstOrNull {
+                        it.songs?.any { s -> s.title == song.title && s.artist == song.artist } == true
+                    }
                 val albumId = album?.id ?: return@itemsIndexed
 
                 LeaderboardListItem(
@@ -71,11 +70,13 @@ fun LeaderboardScreen(
                     likes = likes,
                     rank = index + 1,
                     onClick = {
+                        // Stores the clicked song’s info so the next screen can access it.
                         navController.currentBackStackEntry?.savedStateHandle?.apply {
-                            set("songTitle", song.title) // Stores the clicked song’s info so
-                            set("songArtist", song.artist) // the next screen can access it.
+                            set("songTitle", song.title)
+                            set("songArtist", song.artist)
                         }
-                        navController.navigate(Screen.Release.createRoute(albumId)) // Navigate to the album
+                        // Navigate to the album
+                        navController.navigate(Screen.Release.createRoute(albumId))
                     }
                 )
                 Divider()
@@ -120,6 +121,7 @@ fun LeaderboardListItem(
                 style = MaterialTheme.typography.body1
             )
         },
-        modifier = Modifier.clickable { onClick() } // Handle click to trigger navigation
+        // Handle click to trigger navigation
+        modifier = Modifier.clickable { onClick() }
     )
 }

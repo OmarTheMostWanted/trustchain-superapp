@@ -14,17 +14,14 @@ class MusicLikeBlockValidator
         override fun validate(
             block: TrustChainBlock,
             database: TrustChainStore
-        ): ValidationResult {
-            return if (validate(block)) {
+        ): ValidationResult =
+            if (validate(block)) {
                 ValidationResult.Valid
             } else {
                 ValidationResult.Invalid(listOf("Not all information included."))
             }
-        }
 
-        private fun validate(block: TrustChainBlock): Boolean {
-            return validateTransaction(block.transaction)
-        }
+        private fun validate(block: TrustChainBlock): Boolean = validateTransaction(block.transaction)
 
         fun validateTransaction(transaction: TrustChainTransaction): Boolean {
             val publicKey = transaction["publicKey"]
@@ -33,14 +30,22 @@ class MusicLikeBlockValidator
             val protocolVersion = transaction["protocolVersion"]
 
             return (
-                    publicKey is String && publicKey.isNotEmpty() && transaction.containsKey("publicKey") &&
-                    likedMusicId is String && likedMusicId.isNotEmpty() && transaction.containsKey("likedMusicId") &&
-                    name is String && name.isNotEmpty() && transaction.containsKey("name") &&
-                    protocolVersion is String && protocolVersion.isNotEmpty() && protocolVersion == Constants.PROTOCOL_VERSION
-                )
+                publicKey is String &&
+                    publicKey.isNotEmpty() &&
+                    transaction.containsKey("publicKey") &&
+                    likedMusicId is String &&
+                    likedMusicId.isNotEmpty() &&
+                    transaction.containsKey("likedMusicId") &&
+                    name is String &&
+                    name.isNotEmpty() &&
+                    transaction.containsKey("name") &&
+                    protocolVersion is String &&
+                    protocolVersion.isNotEmpty() &&
+                    protocolVersion == Constants.PROTOCOL_VERSION
+            )
         }
+
         companion object {
             const val BLOCK_TYPE = MusicLikeBlock.BLOCK_TYPE
         }
     }
-

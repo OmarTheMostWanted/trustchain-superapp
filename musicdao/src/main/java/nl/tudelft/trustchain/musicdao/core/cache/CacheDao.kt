@@ -49,5 +49,8 @@ interface CacheDao {
     suspend fun insertMusicLike(musicLike: MusicLikeEntity)
 
     @Query("SELECT EXISTS(SELECT 1 FROM MusicLikeEntity WHERE likedMusicId = :songId AND name = :myId)")
-    fun isSongLikedByMe(songId: String, myId: String): Flow<Boolean>
+    fun isSongLikedByMe(
+        songId: String,
+        myId: String
+    ): Flow<Boolean>
 }

@@ -14,7 +14,6 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import nl.tudelft.trustchain.musicdao.core.repositories.MusicLikeRepository
 import javax.inject.Inject
-import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import nl.tudelft.trustchain.musicdao.core.repositories.model.MusicLike
 
@@ -49,7 +48,7 @@ class DebugScreenViewModel
         }
 
         fun getAllLikes() {
-            var likes: List<MusicLike> = listOf();
+            var likes: List<MusicLike> = listOf()
             viewModelScope.launch(Dispatchers.IO) {
                 likes = musicLikeRepository.getLikes()
                 Log.d("MusicLike", "Getting likes")

@@ -24,7 +24,6 @@ import nl.tudelft.trustchain.musicdao.core.torrent.TorrentEngine
 import nl.tudelft.trustchain.musicdao.core.wallet.WalletService
 import nl.tudelft.trustchain.musicdao.ui.MusicDAOApp
 import nl.tudelft.trustchain.musicdao.ui.screens.profile.ProfileScreenViewModel
-import nl.tudelft.trustchain.musicdao.ui.screens.release.ReleaseScreenViewModel
 import com.frostwire.jlibtorrent.SessionManager
 import com.google.common.util.concurrent.Service
 import dagger.hilt.EntryPoint
@@ -258,7 +257,7 @@ class MusicActivity : AppCompatActivity() {
     @EntryPoint
     @InstallIn(ActivityComponent::class)
     interface ViewModelFactoryProvider {
-        //fun noteDetailViewModelFactory(): ReleaseScreenViewModel.ReleaseScreenViewModelFactory
+        // fun noteDetailViewModelFactory(): ReleaseScreenViewModel.ReleaseScreenViewModelFactory
 
         fun profileScreenViewModelFactory(): ProfileScreenViewModel.ProfileScreenViewModelFactory
     }

@@ -6,6 +6,8 @@ import nl.tudelft.trustchain.musicdao.core.repositories.MusicLikeRepository
 import javax.inject.Inject
 
 @HiltViewModel
-class LeaderboardViewModel @Inject constructor(
-    val musicLikeRepository: MusicLikeRepository
-) : ViewModel()
+class LeaderboardViewModel
+    @Inject
+    constructor(
+        val musicLikeRepository: MusicLikeRepository
+    ) : ViewModel()

@@ -20,7 +20,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.launch
 import nl.tudelft.trustchain.musicdao.core.torrent.status.TorrentStatus
 import nl.tudelft.trustchain.musicdao.ui.components.EmptyState
 
@@ -115,5 +114,5 @@ fun TorrentStatusListItem(torrentStatus: TorrentStatus) {
 fun getLikedButton(debugScreenViewModel: DebugScreenViewModel) {
     Button(onClick = {
         debugScreenViewModel.getAllLikes()
-    }) { Text("Get likes")}
+    }) { Text("Get likes") }
 }
