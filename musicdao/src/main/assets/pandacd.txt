@@ -1,0 +1,18 @@
+[
+  {
+    "releaseId": "Flembaz_Wild Horse",
+    "magnet": "magnet:?xt=urn:btih:b952dbdd75a58d14bb156986eea0bebb60b97e51&dn=Flembaz%20-%20Wild%20Horse%20EP%20mp3&xl=62050956&tr=udp%3A%2F%2Ftracker.pandacd.io%3A2710",
+    "title": "Wild Horse",
+    "artist": "Flembaz",
+    "publisher": "pandacd",
+    "releaseDate": "2014-01-01T00:00:00Z"
+  },
+  {
+    "releaseId": "T O G E T H E R!_Night Cruisin",
+    "magnet": "magnet:?xt=urn:btih:bf003e7080932a342d827aa883005a7efb379c4e&dn=%E5%B9%BD%E9%9C%8A-%20T%20O%20G%20E%20T%20H%20E%20R%21%20-%20Night%20Cruisin%27%20%28320%29&xl=79043238&tr=udp%3A%2F%2Ftracker.pandacd.io%3A2710",
+    "title": "Night Cruisin",
+    "artist": "T O G E T H E R!",
+    "publisher": "pandacd",
+    "releaseDate": "2021-01-01T00:00:00Z"
+  }
+]

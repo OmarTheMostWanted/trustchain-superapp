@@ -125,7 +125,7 @@ constructor(
 
         // Each block contains the latest liked songs for a user, update the database accordingly
         for (block in musicLikeBlocks) {
-            Log.d("MusicProfile", "Refreshing cache for block: ${block.publicKey}")
+            //Log.d("MusicProfile", "Refreshing cache for block: ${block.publicKey}")
             val userPublicKey = block.publicKey
             val likedSongs = block.likedSongs
             val localLikedSongs =

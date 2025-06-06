@@ -14,6 +14,7 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.lifecycleScope
 import nl.tudelft.trustchain.musicdao.core.ipv8.SetupMusicCommunity
 import nl.tudelft.trustchain.musicdao.core.repositories.AlbumRepository
@@ -26,11 +27,15 @@ import nl.tudelft.trustchain.musicdao.ui.MusicDAOApp
 import nl.tudelft.trustchain.musicdao.ui.screens.profile.ProfileScreenViewModel
 import com.frostwire.jlibtorrent.SessionManager
 import com.google.common.util.concurrent.Service
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.components.ActivityComponent
 import kotlinx.coroutines.*
+import nl.tudelft.trustchain.musicdao.core.cache.CacheDatabase
+import nl.tudelft.trustchain.musicdao.core.cache.entities.AlbumEntity
 import nl.tudelft.trustchain.musicdao.core.coin.WalletManager
 import nl.tudelft.trustchain.musicdao.core.repositories.MusicProfileRepository
 import javax.inject.Inject
@@ -68,6 +73,9 @@ class MusicActivity : AppCompatActivity() {
     @Inject
     lateinit var setupMusicCommunity: SetupMusicCommunity
 
+    @Inject
+    lateinit var database: CacheDatabase
+
     lateinit var mService: MusicGossipingService
     var mBound: Boolean = false
 
@@ -85,8 +93,44 @@ class MusicActivity : AppCompatActivity() {
             albumRepository.refreshCache()
             profileRepository.refreshCache()
             torrentEngine.seedStrategy()
+
+
+            val json = assets.open("pandacd.txt").bufferedReader().use { it.readText() }
+            val gson = Gson()
+
+            val type = object : TypeToken<List<CCAlbumParsed>>() {}.type
+            val albums: List<CCAlbumParsed> = gson.fromJson(json, type)
+            val albumEntries =  albums.map { album ->
+                AlbumEntity(
+                    id = album.releaseId,
+                    magnet = album.magnet,
+                    title = album.title,
+                    artist = album.artist,
+                    publisher = album.publisher,
+                    releaseDate = album.releaseDate,
+                    songs = listOf(),
+                    cover = null,
+                    root = null,
+                    isDownloaded = false,
+                    infoHash = TorrentEngine.magnetToInfoHash(album.magnet),
+                    torrentPath = null
+                )
+            }
+            for (albumEntry in albumEntries) {
+                Log.d("MusicDao", "Adding cc album ${albumEntry.title}")
+                database.dao.insert(albumEntry)
+            }
+
+
+
+            // Add some copyright-free albums
+
+
         }
         iterativelyFetchReleasesAndMusicLikes()
+
+
+
         Intent(this, MusicGossipingService::class.java).also { intent ->
             startService(intent)
             bindService(intent, mConnection, Context.BIND_AUTO_CREATE)
@@ -261,4 +305,13 @@ class MusicActivity : AppCompatActivity() {
 
         fun profileScreenViewModelFactory(): ProfileScreenViewModel.ProfileScreenViewModelFactory
     }
+
+    data class CCAlbumParsed(
+        val releaseId: String,
+        val magnet: String,
+        val title: String,
+        val artist: String,
+        val publisher: String,
+        val releaseDate: String
+    )
 }

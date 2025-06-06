@@ -359,10 +359,10 @@ class TorrentEngine
                                 downloadFinishUseCase.invoke(a.handle().infoHash().toString())
                             }
                             else -> {
-                                Log.d(
-                                    "MusicDao",
-                                    "Torrent: Alert type ${alert.type()} not handled"
-                                )
+//                                Log.d(
+//                                    "MusicDao",
+//                                    "Torrent: Alert type ${alert.type()} not handled"
+//                                )
                             }
                         }
                     }

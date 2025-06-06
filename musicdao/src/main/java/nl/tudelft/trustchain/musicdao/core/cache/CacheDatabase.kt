@@ -11,7 +11,7 @@ import nl.tudelft.trustchain.musicdao.core.cache.entities.MusicTagEntity
 import nl.tudelft.trustchain.musicdao.core.cache.parser.Converters
 
 @Database(
-    entities = [AlbumEntity::class, MusicLikeEntity::class, MusicTagEntity::class],
+    entities = [AlbumEntity::class, MusicLikeEntity::class],
     version = 8,
     exportSchema = false
 )
