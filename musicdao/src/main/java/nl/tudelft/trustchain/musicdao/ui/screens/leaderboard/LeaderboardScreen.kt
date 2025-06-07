@@ -1,17 +1,21 @@
 package nl.tudelft.trustchain.musicdao.ui.screens.leaderboard
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import nl.tudelft.trustchain.musicdao.core.repositories.model.Album
 import nl.tudelft.trustchain.musicdao.core.repositories.model.Song
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.sp
 import nl.tudelft.trustchain.musicdao.core.repositories.MusicProfileRepository
 import nl.tudelft.trustchain.musicdao.core.repositories.model.MusicLike
 import nl.tudelft.trustchain.musicdao.ui.navigation.Screen
@@ -62,6 +66,12 @@ fun LeaderboardScreen(
                 Divider()
             }
             itemsIndexed(songsWithLikes) { index, (song, likes) ->
+                var topTags by remember { mutableStateOf<List<String>>(emptyList()) }
+
+                LaunchedEffect(song) {
+                    val tags = musicLikeRepository.getTopTagsForSong(song)
+                    topTags = tags.map { it.tag }
+                }
                 // Find the album this song belongs to
                 val album = albums.firstOrNull {
                     it.songs?.any { s -> s.title ==  song.title && s.artist == song.artist } == true
@@ -72,6 +82,7 @@ fun LeaderboardScreen(
                     song = song,
                     likes = likes,
                     rank = index + 1,
+                    topTags = topTags,
                     onClick = {
                         navController.currentBackStackEntry?.savedStateHandle?.apply {
                             set("songTitle", song.title) // Stores the clicked song’s info so
@@ -99,6 +110,7 @@ fun LeaderboardListItem(
     song: Song,
     likes: Int,
     rank: Int,
+    topTags: List<String>,
     onClick: () -> Unit
 ) {
     ListItem(
@@ -110,11 +122,35 @@ fun LeaderboardListItem(
             )
         },
         secondaryText = {
-            Text(
-                song.artist,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
+            Column {
+                Text(
+                    song.artist,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp),
+                    horizontalArrangement = Arrangement.Start
+                ) {
+                    topTags.forEach { tag ->
+                        Text(
+                            text = tag,
+                            fontSize = 12.sp,
+                            color = Color.Green,
+                            modifier = Modifier
+                                .padding(end = 5.dp)
+                                .border(
+                                    width = 1.dp,
+                                    color = Color(0xFF4CAF50),
+                                    shape = RoundedCornerShape(50)
+                                )
+                                .padding(horizontal = 7.dp, vertical = 4.dp)
+                        )
+                    }
+                }
+            }
         },
         trailing = {
             Text(
