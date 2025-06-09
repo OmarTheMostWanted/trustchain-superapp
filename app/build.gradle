@@ -93,7 +93,7 @@ android {
     }
     packagingOptions {
         resources {
-            excludes += ['META-INF/kotlinx-coroutines-core.kotlin_module', 'META-INF/DEPENDENCIES']
+            excludes += ['META-INF/kotlinx-coroutines-core.kotlin_module', 'META-INF/DEPENDENCIES', "/META-INF/DISCLAIMER"]
         }
     }
 
