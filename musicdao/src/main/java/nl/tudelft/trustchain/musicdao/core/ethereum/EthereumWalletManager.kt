@@ -4,6 +4,7 @@ import android.content.Context
 import org.web3j.crypto.Credentials
 import org.web3j.crypto.ECKeyPair
 import org.web3j.crypto.WalletUtils
+import org.web3j.crypto.exception.CipherException
 import org.web3j.protocol.Web3j
 import org.web3j.protocol.core.methods.response.TransactionReceipt
 import org.web3j.protocol.http.HttpService
@@ -38,11 +39,17 @@ class EthereumWalletManager @Inject constructor(context: Context) {
      * Since ETH address is fully determined by the PK, there is no need to provide address separately.
      * WILL OVERWRITE ANY EXISTING WALLET
      */
-    public fun createWalletFromExistingHexPK(privateKeyInHex: String, localPassword: String): Credentials {
+    public fun createWalletFromExistingHexPK(privateKeyInHex: String, localPassword: String): Credentials? {
         val credentials = getCredentialsFromHexPK(privateKeyInHex)
 
         clearWalletDirectory()
-        WalletUtils.generateWalletFile(localPassword, credentials.ecKeyPair, walletFileDirectory, false)
+        if (credentials != null) {
+            try {
+                WalletUtils.generateWalletFile(localPassword, credentials.ecKeyPair, walletFileDirectory, false)
+            } catch (e: CipherException) {
+                return null
+            }
+        }
         return credentials
     }
 
@@ -50,9 +57,10 @@ class EthereumWalletManager @Inject constructor(context: Context) {
      * Creates a new wallet locally encrypted by the given password.
      * WILL OVERWRITE ANY EXISTING WALLET
      */
-    public fun createWallet(localPassword: String): Unit {
+    public fun createWallet(localPassword: String): Credentials? {
         clearWalletDirectory()
         WalletUtils.generateLightNewWalletFile(localPassword, walletFileDirectory)
+        return getWalletCredentials(localPassword)
     }
 
     /**
@@ -70,15 +78,19 @@ class EthereumWalletManager @Inject constructor(context: Context) {
         if (!doesWalletExists()) {
             return null
         }
-
+        val credentials: Credentials?;
         // Will return null if the password is incorrect
-        val credentials = WalletUtils.loadCredentials(localPassword, walletFileDirectory.listFiles()!!.first())
+        try {
+            credentials = WalletUtils.loadCredentials(localPassword, walletFileDirectory.listFiles()!!.first())
+        } catch (e: CipherException) {
+            return null
+        }
         return credentials
     }
 
-    private fun getCredentialsFromHexPK(hexPK: String): Credentials {
+    private fun getCredentialsFromHexPK(hexPK: String): Credentials? {
         val privateKeyBigInt = BigInteger(hexPK, 16)
-        val keyPair = ECKeyPair.create(privateKeyBigInt)
+        val keyPair = ECKeyPair.create(privateKeyBigInt) ?: return null
         return Credentials.create(keyPair)
     }
 

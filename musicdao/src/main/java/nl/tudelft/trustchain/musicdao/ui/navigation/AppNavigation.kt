@@ -40,6 +40,8 @@ import nl.tudelft.trustchain.musicdao.ui.screens.profile.MyProfileScreenViewMode
 import nl.tudelft.trustchain.musicdao.ui.screens.profile.ProfileScreen
 import nl.tudelft.trustchain.musicdao.ui.screens.profileMenu.ProfileMenuScreen
 import androidx.compose.runtime.collectAsState
+import nl.tudelft.trustchain.musicdao.ui.screens.ethDonations.EthDonationScreen
+import nl.tudelft.trustchain.musicdao.ui.screens.ethDonations.EthDonationScreenViewModel
 
 @ExperimentalAnimationApi
 @ExperimentalFoundationApi
@@ -78,6 +80,10 @@ fun AppNavigation(
                     navController = navController,
                     musicLikeRepository = leaderboardViewModel.musicLikeRepository
                 )
+            }
+            composable(Screen.EthDonations.route) {
+                val ethDonationScreenViewModel: EthDonationScreenViewModel = hiltViewModel()
+                EthDonationScreen(navController = navController, viewModel = ethDonationScreenViewModel)
             }
             composable(Screen.Search.route) {
                 val searchScreenScreenViewModel: SearchScreenViewModel = hiltViewModel()
