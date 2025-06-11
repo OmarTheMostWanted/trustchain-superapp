@@ -5,7 +5,9 @@ import androidx.room.*
 import kotlinx.coroutines.flow.Flow
 import nl.tudelft.trustchain.musicdao.core.cache.entities.AlbumEntity
 import nl.tudelft.trustchain.musicdao.core.cache.entities.MusicLikeEntity
+import nl.tudelft.trustchain.musicdao.core.cache.entities.MusicTagEntity
 import nl.tudelft.trustchain.musicdao.core.ipv8.blocks.Constants
+import nl.tudelft.trustchain.musicdao.core.repositories.model.TagCount
 
 @Dao
 interface CacheDao {
@@ -63,6 +65,20 @@ interface CacheDao {
     @Query("SELECT EXISTS(SELECT 1 FROM MusicLikeEntity WHERE publicKey = :userPublicKey AND songName = :songName)")
     fun isSongLikedByUser(userPublicKey: String, songName: String): Flow<Boolean>
 
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun addTag(tag: MusicTagEntity)
+
+    @Query("DELETE FROM MusicTagEntity WHERE publicKey = :publicKey AND songName = :songName AND tag = :tag")
+    suspend fun removeTag(publicKey: String, songName: String, tag: String)
+
+    @Query("SELECT tag, COUNT(*) as count FROM MusicTagEntity WHERE songName = :songName GROUP BY tag ORDER BY count DESC LIMIT 3")
+    suspend fun getTopTagsForSong(songName: String): List<TagCount>
+
+    @Query("SELECT tag FROM MusicTagEntity WHERE publicKey = :publicKey AND songName = :songName")
+    suspend fun getUserTagsForSong(publicKey: String, songName: String): List<String>
+
+    @Query("SELECT * FROM MusicTagEntity WHERE publicKey = :publicKey")
+    suspend fun getUserTagsForAllSongs(publicKey: String): List<MusicTagEntity>
 
 //    @Query("SELECT * FROM MusicLikeEntity")
 //    suspend fun getAllMusicLikes(): List<MusicLikeEntity>
