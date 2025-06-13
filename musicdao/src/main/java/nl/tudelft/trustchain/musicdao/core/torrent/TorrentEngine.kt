@@ -384,9 +384,10 @@ class TorrentEngine
             }
 
             fun magnetToInfoHash(magnet: String): String? {
+                Log.d("TorrentEngine", "magnetToInfoHash: $magnet")
                 val mark = "magnet:?xt=urn:btih:"
+                if (magnet.indexOf(mark) == -1) return null
                 val start = magnet.indexOf(mark) + mark.length
-                if (start == -1) return null
                 return magnet.substring(20, start + 40)
             }
 
