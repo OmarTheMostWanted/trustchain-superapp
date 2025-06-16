@@ -5,6 +5,7 @@ import android.content.Context
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -12,6 +13,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.outlined.Favorite
@@ -29,7 +31,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -170,6 +174,18 @@ fun ReleaseScreen(
                 if (!album.songs.isNullOrEmpty()) {
                     val files = album.songs
                     files.map {
+                        val selectedTags = remember { mutableStateListOf<String>() }
+                        var expanded by remember { mutableStateOf(false) }
+                        val genreOptions = listOf("Rock", "Jazz", "Pop", "Hip-Hop", "Electronic", "Classical")
+
+                        LaunchedEffect(it) {
+                            val newTags = viewModel.getSelectedTags(it)
+                            if (newTags.toSet() != selectedTags.toSet()) {
+                                selectedTags.clear()
+                                selectedTags.addAll(newTags)
+                            }
+                        }
+
                         val isPlayingModifier =
                             playingTrack.value?.let { current ->
                                 if (it.title == current.title) {
@@ -204,14 +220,52 @@ fun ReleaseScreen(
                                             tint = if (isLiked) MaterialTheme.colors.primary else Color.Gray // Green when liked, Gray when unliked
                                         )
                                     }
-                                    Icon(
-                                        imageVector = Icons.Default.MoreVert,
-                                        contentDescription = "More options"
-                                    )
+                                    IconButton(onClick = { expanded = true }) {
+                                        Icon(imageVector = Icons.Default.List, contentDescription = "Select Tags")
+                                    }
+                                    DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                                        genreOptions.forEach { tag ->
+                                            val selected = tag in selectedTags
+                                            DropdownMenuItem(onClick = {
+                                                coroutineScope.launch {
+                                                    viewModel.toggleTag(it, tag)
+                                                    selectedTags.clear()
+                                                    selectedTags.addAll(viewModel.getSelectedTags(it))
+                                                }
+                                            }) {
+                                                Text(tag, color = if (selected) Color.Green else Color.Unspecified)
+                                            }
+                                        }
+                                    }
+
                                 }
                             },
                             modifier = Modifier.clickable { play(it, album.cover) }
                         )
+
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(start = 10.dp, top = .5.dp),
+                            horizontalArrangement = Arrangement.Start
+                        ) {
+                            selectedTags.forEach { tag ->
+                                Text(
+                                    text = tag,
+                                    fontSize = 12.sp,
+                                    color = Color.Green, // Green
+                                    modifier = Modifier
+                                        .padding(end = 5.dp)
+                                        .border(
+                                            width = 1.dp,
+                                            color = Color(0xFF4CAF50),
+                                            shape = RoundedCornerShape(50)
+                                        )
+                                        .padding(horizontal = 7.dp, vertical = 4.dp)
+                                )
+                            }
+                        }
+
                     }
                 } else {
                     if (torrentStatus != null) {

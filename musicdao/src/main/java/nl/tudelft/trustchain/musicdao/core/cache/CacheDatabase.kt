@@ -5,10 +5,11 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import nl.tudelft.trustchain.musicdao.core.cache.entities.AlbumEntity
 import nl.tudelft.trustchain.musicdao.core.cache.entities.MusicLikeEntity
+import nl.tudelft.trustchain.musicdao.core.cache.entities.MusicTagEntity
 import nl.tudelft.trustchain.musicdao.core.cache.parser.Converters
 
 @Database(
-    entities = [AlbumEntity::class, MusicLikeEntity::class],
+    entities = [AlbumEntity::class, MusicLikeEntity::class, MusicTagEntity::class],
     version = 9,
     exportSchema = false
 )
