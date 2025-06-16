@@ -42,25 +42,11 @@ constructor(
     fun getAll(): List<MusicProfile> {
         val validTrustChainBlocks =  musicCommunity.database.getBlocksWithType(MusicProfile.BLOCK_TYPE)
             .filter { musicProfileBlockValidator.validateTransaction(it.transaction) }
-
-        //Log How many valid blocks we have
-        //Log.d("MusicDao", "getAll: Found ${validTrustChainBlocks.size} valid MusicProfile blocks")
-
         val groupedByPublicKey = validTrustChainBlocks.groupBy { it.publicKey.toHex() }
-
-        // Log how many unique public keys we have
-        //Log.d("MusicDao", "getAll: Found ${groupedByPublicKey.size} unique public keys in MusicProfile blocks")
-        // Print the public keys
-//        groupedByPublicKey.keys.forEach { publicKey ->
-//            Log.d("MusicDao", "getAll: Public key: $publicKey")
-//        }
-
         val listOfOnlyNestBlocks = groupedByPublicKey.map { entry ->
             entry.value.maxByOrNull { it.timestamp } ?: entry.value.first()
         }
-
         return listOfOnlyNestBlocks.map { MusicProfile.fromTrustChainTransaction(it.transaction) }
-
     }
 
 
@@ -96,7 +82,8 @@ constructor(
                 publicKey = myPeerPublicKey,
                 likedSongs = companion.allLikedSongs,
                 protocolVersion = Constants.PROTOCOL_VERSION,
-                tags = companion.allTags
+                tags = companion.allTags,
+                ethereumWalletAddress = companion.ethereumWalletAddress
             )
         )
         if (!musicProfileBlockValidator.validateTransaction(transaction)) {
@@ -118,8 +105,8 @@ constructor(
     companion object {
         data class MusicProfileCompanion(
             val allLikedSongs: List<String>,
-            val allTags: Map<String, List<String>>
-            // tags
+            val allTags: Map<String, List<String>>,
+            val ethereumWalletAddress: String
         )
     }
 }
