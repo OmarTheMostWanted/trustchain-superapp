@@ -24,18 +24,12 @@ import nl.tudelft.trustchain.musicdao.ui.navigation.Screen
 fun LeaderboardScreen(
     albums: List<Album>,
     navController: NavController,
-    musicLikeRepository: MusicProfileRepository
+    leaderboardViewModel: LeaderboardViewModel
 ) {
-    var likesByMusicId by remember { mutableStateOf<Map<String, Int>>(emptyMap()) }
+    val likes by leaderboardViewModel.likesFlow.collectAsState()
 
-    LaunchedEffect(Unit) {
-        // Fetch all likes from the repository
-        val likes = musicLikeRepository.getLikes()
-        for (like in likes) {
-            val LikedId = like.songName
-            val likeCount = likesByMusicId.getOrDefault(LikedId, 0) + 1
-            likesByMusicId = likesByMusicId + (LikedId to likeCount)
-        }
+    val likesByMusicId = remember(likes) {
+        likes.groupingBy { it.songName }.eachCount()
     }
 
     val songsWithLikes = albums
@@ -69,7 +63,7 @@ fun LeaderboardScreen(
                 var topTags by remember { mutableStateOf<List<String>>(emptyList()) }
 
                 LaunchedEffect(song) {
-                    val tags = musicLikeRepository.getTopTagsForSong(song)
+                    val tags = leaderboardViewModel.getTopTagsForSong(song)
                     topTags = tags.map { it.tag }
                 }
                 // Find the album this song belongs to

@@ -88,11 +88,11 @@ fun ReleaseListItem(
                 }
             }
         },
-        trailing = {
-            IconButton(onClick = { }) {
-                Icon(imageVector = Icons.Default.MoreVert, contentDescription = null)
-            }
-        },
+        // trailing = {
+        //     IconButton(onClick = { }) {
+        //         Icon(imageVector = Icons.Default.MoreVert, contentDescription = null)
+        //     }
+        // },
         modifier =
             Modifier.clickable {
                 navController.navigate(

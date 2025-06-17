@@ -4,6 +4,7 @@ import android.util.Log
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.map
 import nl.tudelft.trustchain.musicdao.core.cache.CacheDatabase
 import nl.tudelft.trustchain.musicdao.core.cache.entities.MusicTagEntity
 import nl.tudelft.trustchain.musicdao.core.ipv8.blocks.Constants.PROTOCOL_VERSION
@@ -13,7 +14,7 @@ import nl.tudelft.trustchain.musicdao.core.repositories.model.MusicLike
 import nl.tudelft.trustchain.musicdao.core.repositories.model.Song
 import nl.tudelft.trustchain.musicdao.core.repositories.model.TagCount
 import javax.inject.Inject
-
+import nl.tudelft.trustchain.musicdao.core.cache.entities.MusicLikeEntity
 
 class MusicProfileRepository @Inject
 constructor(
@@ -23,6 +24,11 @@ constructor(
     suspend fun getLikes(): List<MusicLike> {
         return database.dao.getCurrentVersionLikes().map { it.toMusicLike() }
     }
+    fun getLikesFlow(): Flow<List<MusicLike>> {
+    return database.dao.getAllLikesFlow().map { list: List<MusicLikeEntity> ->
+        list.map { it.toMusicLike() }
+    }
+}
 
     suspend fun toggleLike(track: Song): MusicProfile? {
 
