@@ -47,13 +47,6 @@ interface CacheDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun addLikedSong(musicLike: MusicLikeEntity)
 
-<<<<<<< HEAD
-    @Query("SELECT EXISTS(SELECT 1 FROM MusicLikeEntity WHERE likedMusicId = :songId AND name = :myId)")
-    fun isSongLikedByMe(
-        songId: String,
-        myId: String
-    ): Flow<Boolean>
-=======
     suspend fun addLikedSong(userPublicKey: String, songName: String, protocolVersion: String = Constants.PROTOCOL_VERSION) {
         val musicLikeEntity = MusicLikeEntity(
             publicKey = userPublicKey,
@@ -104,5 +97,4 @@ interface CacheDao {
 
 //    @Query("SELECT EXISTS(SELECT 1 FROM MusicLikeEntity WHERE likedMusicId = :songId AND name = :myId)")
 //    fun isSongLikedByMe(songId: String, myId: String): Flow<Boolean>
->>>>>>> master
 }

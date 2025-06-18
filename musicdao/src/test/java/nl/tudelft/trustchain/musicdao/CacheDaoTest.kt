@@ -51,11 +51,9 @@ class CacheDaoTest {
         runTest {
             val like =
                 MusicLikeEntity(
-                    id = "like1",
-                    name = "Test User",
-                    likedMusicId = "song1",
-                    publicKey = "",
-                    protocolVersion = ""
+                    publicKey = "pubKey",
+                    protocolVersion = "",
+                    songName = "song1"
                 )
 
             coEvery { dao.insertMusicLike(like) } just Runs

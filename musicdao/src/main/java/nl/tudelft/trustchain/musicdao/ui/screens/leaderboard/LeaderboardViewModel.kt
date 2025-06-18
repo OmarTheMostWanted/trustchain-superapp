@@ -14,13 +14,6 @@ import nl.tudelft.trustchain.musicdao.core.repositories.model.TagCount
 import javax.inject.Inject
 
 @HiltViewModel
-<<<<<<< HEAD
-class LeaderboardViewModel
-    @Inject
-    constructor(
-        val musicLikeRepository: MusicLikeRepository
-    ) : ViewModel()
-=======
 class LeaderboardViewModel @Inject constructor(
     val musicLikeRepository: MusicProfileRepository
 ) : ViewModel() {
@@ -31,4 +24,3 @@ class LeaderboardViewModel @Inject constructor(
         return musicLikeRepository.getTopTagsForSong(song)
     }
 }
->>>>>>> master

@@ -37,27 +37,11 @@ class MusicProfileBlockValidator
 
 
             return (
-<<<<<<< HEAD:musicdao/src/main/java/nl/tudelft/trustchain/musicdao/core/ipv8/blocks/musicLike/MusicLikeBlockValidator.kt
-                publicKey is String &&
-                    publicKey.isNotEmpty() &&
-                    transaction.containsKey("publicKey") &&
-                    likedMusicId is String &&
-                    likedMusicId.isNotEmpty() &&
-                    transaction.containsKey("likedMusicId") &&
-                    name is String &&
-                    name.isNotEmpty() &&
-                    transaction.containsKey("name") &&
-                    protocolVersion is String &&
-                    protocolVersion.isNotEmpty() &&
-                    protocolVersion == Constants.PROTOCOL_VERSION
-            )
-=======
                 publicKey is String && publicKey.isNotEmpty() &&
                     likedSongs is List<*> && likedSongs.all { it is String } &&
                     protocolVersion is String && protocolVersion == Constants.PROTOCOL_VERSION &&
                     isValidTags
                 )
->>>>>>> master:musicdao/src/main/java/nl/tudelft/trustchain/musicdao/core/ipv8/blocks/musicLike/MusicProfileBlockValidator.kt
         }
 
         companion object {

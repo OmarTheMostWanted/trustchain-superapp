@@ -13,14 +13,8 @@ data class MusicLikeEntity(
     fun toMusicLike(): MusicLike {
         return MusicLike(
             publicKey = publicKey,
-<<<<<<< HEAD
-            name = name,
-            likedMusicId = likedMusicId,
-            protocolVersion = protocolVersion,
-=======
             songName = songName,
             protocolVersion = protocolVersion
->>>>>>> master
         )
     }
 }

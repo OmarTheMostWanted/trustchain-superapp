@@ -22,24 +22,12 @@ import javax.inject.Inject
 import kotlin.random.Random
 
 @HiltViewModel
-<<<<<<< HEAD
-class PlayerViewModel
-    @Inject
-    constructor(
-        // Not sure if context is actually passed correctly
-        @ApplicationContext private val context: Context,
-        private val musicLikeRepository: MusicLikeRepository
-    ) : ViewModel() {
-        private val _playingTrack: MutableStateFlow<Song?> = MutableStateFlow(null)
-        val playingTrack: StateFlow<Song?> = _playingTrack
-=======
 class PlayerViewModel @Inject constructor(
     // Not sure if context is actually passed correctly
     @ApplicationContext private val context: Context,
 ) : ViewModel() {
     private val _playingTrack: MutableStateFlow<Song?> = MutableStateFlow(null)
     val playingTrack: StateFlow<Song?> = _playingTrack
->>>>>>> master
 
         private val _coverFile: MutableStateFlow<File?> = MutableStateFlow(null)
         val coverFile: StateFlow<File?> = _coverFile

@@ -47,10 +47,6 @@ class DebugScreenViewModel
         }
 
         fun getAllLikes() {
-<<<<<<< HEAD
-            var likes: List<MusicLike> = listOf()
-=======
->>>>>>> master
             viewModelScope.launch(Dispatchers.IO) {
                 val likes = musicLikeRepository.getLikes()
                 Log.d("MusicLike", "Getting likes")

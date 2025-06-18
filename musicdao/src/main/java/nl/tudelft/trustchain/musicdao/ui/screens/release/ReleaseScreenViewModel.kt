@@ -21,24 +21,12 @@ import javax.inject.Inject
 
 @OptIn(DelicateCoroutinesApi::class)
 @HiltViewModel
-<<<<<<< HEAD
-class ReleaseScreenViewModel
-    @Inject
-    constructor(
-        savedStateHandle: SavedStateHandle,
-        private val database: CacheDatabase,
-        private val torrentEngine: TorrentEngine,
-        private val musicLikeRepository: MusicLikeRepository
-    ) : ViewModel() {
-        private val releaseId: String = checkNotNull(savedStateHandle["releaseId"])
-=======
 class ReleaseScreenViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val database: CacheDatabase,
     private val torrentEngine: TorrentEngine,
     private val musicProfileRepository: MusicProfileRepository
 ) : ViewModel() {
->>>>>>> master
 
         private var releaseLiveData: LiveData<AlbumEntity> = MutableLiveData(null)
         var saturatedReleaseState: LiveData<Album?> = MutableLiveData()
@@ -53,18 +41,6 @@ class ReleaseScreenViewModel @Inject constructor(
 
                 val release = database.dao.get(releaseId)
 
-<<<<<<< HEAD
-                release.let { _release ->
-                    if (!_release.isDownloaded) {
-                        torrentEngine.download(_release.magnet)
-                    }
-
-                    while (isActive) {
-                        if (_release.infoHash != null) {
-                            _torrentState.value = torrentEngine.getTorrentStatus(_release.infoHash)
-                        }
-                        delay(1000L)
-=======
     init {
         viewModelScope.launch {
             releaseLiveData = database.dao.getLiveData(releaseId)
@@ -81,19 +57,11 @@ class ReleaseScreenViewModel @Inject constructor(
                 while (isActive) {
                     if (_release.infoHash != null) {
                         _torrentState.value = torrentEngine.getTorrentStatus(_release.infoHash)
->>>>>>> master
                     }
                 }
             }
         }
 
-<<<<<<< HEAD
-        suspend fun likeMusic(track: Song,) {
-            val block = musicLikeRepository.createMusicLike(track)
-            if (block != null) {
-                Log.d("MusicLike", "${block.name} liked ${block.likedMusicId}")
-            }
-=======
     suspend fun likeMusic(
         track: Song,
     ) {
@@ -109,15 +77,12 @@ class ReleaseScreenViewModel @Inject constructor(
         val block = musicProfileRepository.toggleLike(track)
         if (block == null) {
             Log.d("MusicProfile", "Failed to unlike song: ${track.title}")
->>>>>>> master
         }
 
         fun isMusicLikedByMe(track: Song,): Flow<Boolean> {
             return musicLikeRepository.isSongLikedByMe(track)
         }
     }
-<<<<<<< HEAD
-=======
 
     fun isMusicLikedByMe(
         track: Song,
@@ -137,4 +102,3 @@ class ReleaseScreenViewModel @Inject constructor(
 
 
 }
->>>>>>> master

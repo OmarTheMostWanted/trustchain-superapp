@@ -1,9 +1,6 @@
 package nl.tudelft.trustchain.musicdao.ui.screens.leaderboard
 
-<<<<<<< HEAD
-=======
 import androidx.compose.foundation.border
->>>>>>> master
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -31,15 +28,8 @@ fun LeaderboardScreen(
 ) {
     val likes by leaderboardViewModel.likesFlow.collectAsState()
 
-<<<<<<< HEAD
-    // Group and count likes by likedMusicId (track.title in current logic)
-    LaunchedEffect(Unit) {
-        val likes = musicLikeRepository.getLikes()
-        likesByMusicId = likes.groupingBy { it.likedMusicId }.eachCount()
-=======
     val likesByMusicId = remember(likes) {
         likes.groupingBy { it.songName }.eachCount()
->>>>>>> master
     }
 
     val songsWithLikes =
@@ -71,12 +61,6 @@ fun LeaderboardScreen(
                 Divider()
             }
             itemsIndexed(songsWithLikes) { index, (song, likes) ->
-<<<<<<< HEAD
-                val album =
-                    albums.firstOrNull {
-                        it.songs?.any { s -> s.title == song.title && s.artist == song.artist } == true
-                    }
-=======
                 var topTags by remember { mutableStateOf<List<String>>(emptyList()) }
 
                 LaunchedEffect(song) {
@@ -87,7 +71,6 @@ fun LeaderboardScreen(
                 val album = albums.firstOrNull {
                     it.songs?.any { s -> s.title ==  song.title && s.artist == song.artist } == true
                 }
->>>>>>> master
                 val albumId = album?.id ?: return@itemsIndexed
 
                 LeaderboardListItem(
