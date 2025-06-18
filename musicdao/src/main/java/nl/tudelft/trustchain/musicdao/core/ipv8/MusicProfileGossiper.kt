@@ -12,46 +12,48 @@ import nl.tudelft.trustchain.musicdao.core.ipv8.blocks.musicLike.MusicProfileBlo
 import javax.inject.Inject
 
 class MusicProfileGossiper
-@Inject
-constructor(
-    private val musicCommunity: MusicCommunity,
-    private val musicProfileBlockValidator: MusicProfileBlockValidator
-) {
-    fun startGossip(coroutineScope: CoroutineScope) {
-        coroutineScope.launch {
-            while (coroutineScope.isActive) {
+    @Inject
+    constructor(
+        private val musicCommunity: MusicCommunity,
+        private val musicProfileBlockValidator: MusicProfileBlockValidator
+    ) {
+        fun startGossip(coroutineScope: CoroutineScope) {
+            coroutineScope.launch {
+                while (coroutineScope.isActive) {
 //                Log.d("MusicProfile", "Starting to gossip music likes")
-                gossip()
-                delay(Config.DELAY)
+                    gossip()
+                    delay(Config.DELAY)
+                }
             }
         }
-    }
 
-    private fun gossip() {
-        val randomPeer = pickRandomPeer()
-        if (randomPeer == null) {
-            Log.d("MusicProfile", "No peers available for gossiping music profile")
-            return
-        }
+        fun gossip() {
+            val randomPeer = pickRandomPeer()
+            if (randomPeer == null) {
+                Log.d("MusicProfile", "No peers available for gossiping music profile")
+                return
+            }
 
-        val validTrustChainBlocks =
-            musicCommunity.database.getBlocksWithType(MusicProfile.BLOCK_TYPE)
-                .filter { musicProfileBlockValidator.validateTransaction(it.transaction) }
+            val validTrustChainBlocks =
+                musicCommunity.database
+                    .getBlocksWithType(MusicProfile.BLOCK_TYPE)
+                    .filter { musicProfileBlockValidator.validateTransaction(it.transaction) }
 
 //        Log.d(
 //            "MusicProfile",
 //            "Gossiping music profile blocks, found ${validTrustChainBlocks.size} valid blocks"
 //        )
 
-        val groupedByPublicKey = validTrustChainBlocks.groupBy { it.publicKey.toHex() }
+            val groupedByPublicKey = validTrustChainBlocks.groupBy { it.publicKey.toHex() }
 
-        val newestBlocks = groupedByPublicKey.map { entry ->
-            entry.value.maxByOrNull { it.timestamp } ?: entry.value.first()
-        }
+            val newestBlocks =
+                groupedByPublicKey.map { entry ->
+                    entry.value.maxByOrNull { it.timestamp } ?: entry.value.first()
+                }
 
-        newestBlocks.shuffled().take(Config.BLOCKS).forEach { block ->
-            musicCommunity.sendBlock(block, randomPeer)
-        }
+            newestBlocks.shuffled().take(Config.BLOCKS).forEach { block ->
+                musicCommunity.sendBlock(block, randomPeer)
+            }
 
 //        Log.d(
 //            "MusicProfile",
@@ -66,17 +68,16 @@ constructor(
 //            .take(Config.BLOCKS)
 //        musicProfileBlocks.forEach {
 //            musicCommunity.sendBlock(it, randomPeer)
-    }
+        }
 
+        object Config {
+            const val BLOCKS = 10
+            const val DELAY = 5_000L
+        }
 
-    object Config {
-        const val BLOCKS = 10
-        const val DELAY = 5_000L
+        fun pickRandomPeer(): Peer? {
+            val peers = musicCommunity.getPeers()
+            if (peers.isEmpty()) return null
+            return peers.random()
+        }
     }
-
-    private fun pickRandomPeer(): Peer? {
-        val peers = musicCommunity.getPeers()
-        if (peers.isEmpty()) return null
-        return peers.random()
-    }
-}

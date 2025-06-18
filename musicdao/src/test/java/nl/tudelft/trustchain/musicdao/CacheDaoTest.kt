@@ -47,7 +47,7 @@ class CacheDaoTest {
         }
 
     @Test
-    fun testInsertMusicLike() =
+    fun testAddLikedSong() =
         runTest {
             val like =
                 MusicLikeEntity(
@@ -56,11 +56,11 @@ class CacheDaoTest {
                     songName = "song1"
                 )
 
-            coEvery { dao.insertMusicLike(like) } just Runs
+            coEvery { dao.addLikedSong(like) } just Runs
 
-            dao.insertMusicLike(like)
+            dao.addLikedSong(like)
 
-            coVerify { dao.insertMusicLike(like) }
+            coVerify { dao.addLikedSong(like) }
         }
 
     @Test
@@ -68,8 +68,8 @@ class CacheDaoTest {
         runTest {
             val likes =
                 listOf(
-                    MusicLikeEntity("like1", "pubKey", "Test User", "song1", Constants.PROTOCOL_VERSION),
-                    MusicLikeEntity("like2", "pubKey", "Test User", "song2", Constants.PROTOCOL_VERSION)
+                    MusicLikeEntity("pubKey", "song1", Constants.PROTOCOL_VERSION),
+                    MusicLikeEntity("pubKey", "song2", Constants.PROTOCOL_VERSION)
                 )
 
             coEvery { dao.getCurrentVersionLikes(Constants.PROTOCOL_VERSION) } returns likes
@@ -77,7 +77,7 @@ class CacheDaoTest {
             val result = dao.getCurrentVersionLikes(Constants.PROTOCOL_VERSION)
 
             assertEquals(2, result.size)
-            assertTrue(result.any { it.likedMusicId == "song1" })
+            assertTrue(result.any { it.songName == "song1" })
             coVerify { dao.getCurrentVersionLikes(Constants.PROTOCOL_VERSION) }
         }
 }

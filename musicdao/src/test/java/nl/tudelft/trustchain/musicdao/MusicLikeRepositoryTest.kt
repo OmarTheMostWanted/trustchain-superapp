@@ -8,10 +8,9 @@ import nl.tudelft.trustchain.musicdao.core.cache.CacheDao
 import nl.tudelft.trustchain.musicdao.core.cache.CacheDatabase
 import nl.tudelft.trustchain.musicdao.core.cache.entities.MusicLikeEntity
 import nl.tudelft.trustchain.musicdao.core.ipv8.blocks.Constants
-import nl.tudelft.trustchain.musicdao.core.ipv8.blocks.musicLike.MusicLikeBlock
-import nl.tudelft.trustchain.musicdao.core.ipv8.blocks.musicLike.MusicLikeBlockRepository
-import nl.tudelft.trustchain.musicdao.core.repositories.MusicLikeRepository
-import nl.tudelft.trustchain.musicdao.core.repositories.model.MusicLike
+import nl.tudelft.trustchain.musicdao.core.ipv8.blocks.musicLike.MusicProfile
+import nl.tudelft.trustchain.musicdao.core.ipv8.blocks.musicLike.MusicProfileBlockRepository
+import nl.tudelft.trustchain.musicdao.core.repositories.MusicProfileRepository
 import nl.tudelft.trustchain.musicdao.core.repositories.model.Song
 import org.junit.Before
 import org.junit.Test
@@ -20,8 +19,8 @@ import org.junit.Assert.*
 class MusicLikeRepositoryTest {
     private lateinit var dao: CacheDao
     private lateinit var db: CacheDatabase
-    private lateinit var blockRepository: MusicLikeBlockRepository
-    private lateinit var repository: MusicLikeRepository
+    private lateinit var blockRepository: MusicProfileBlockRepository
+    private lateinit var repository: MusicProfileRepository
 
     private val testSong =
         Song(
@@ -29,7 +28,6 @@ class MusicLikeRepositoryTest {
             artist = "Test Artist",
             file = null
         )
-    private val likedMusicId = MusicLike.musicLikeIdFromSong(testSong)
 
     @Before
     fun setup() {
@@ -42,35 +40,35 @@ class MusicLikeRepositoryTest {
         every { db.dao } returns dao
         every { blockRepository.myPeerPublicKey } returns "peerKey"
 
-        repository = MusicLikeRepository(db, blockRepository)
+        repository = MusicProfileRepository(db, blockRepository)
     }
 
     @Test
     fun testGetLikes() =
         runTest {
-            val entities =
+            val likes =
                 listOf(
-                    MusicLikeEntity("id1", "pubKey", "user", "track1", Constants.PROTOCOL_VERSION),
-                    MusicLikeEntity("id2", "pubKey", "user", "track2", Constants.PROTOCOL_VERSION)
+                    MusicLikeEntity("pubKey", "song1", Constants.PROTOCOL_VERSION),
+                    MusicLikeEntity("pubKey", "song2", Constants.PROTOCOL_VERSION)
                 )
 
-            coEvery { dao.getCurrentVersionLikes() } returns entities
+            coEvery { dao.getCurrentVersionLikes() } returns likes
 
             val result = repository.getLikes()
 
             assertEquals(2, result.size)
-            assertEquals("track1", result[0].likedMusicId)
-            assertEquals("track2", result[1].likedMusicId)
+            assertEquals("track1", result[0].songName)
+            assertEquals("track2", result[1].songName)
         }
 
     @Test
     fun testCreateMusicLike() =
         runTest {
             coEvery {
-                dao.isSongLikedByMe(any(), any())
+                dao.isSongLikedByUser(any(), any())
             } returns flowOf(true)
 
-            val result = repository.createMusicLike(testSong)
+            val result = repository.toggleLike(testSong)
 
             assertNull(result)
             coVerify(exactly = 0) { blockRepository.create(any()) }
@@ -79,49 +77,51 @@ class MusicLikeRepositoryTest {
     @Test
     fun testInsertMusicLikeBlock() =
         runTest {
+            val songs = listOf("song1")
+            val tags = emptyMap<String, List<String>>()
             val block =
-                MusicLikeBlock(
-                    likedMusicId = likedMusicId,
-                    name = "user",
+                MusicProfile(
                     publicKey = "peerKey",
-                    protocolVersion = Constants.PROTOCOL_VERSION
+                    songs,
+                    protocolVersion = Constants.PROTOCOL_VERSION,
+                    tags
                 )
 
-            coEvery { dao.isSongLikedByMe(any(), any()) } returns flowOf(false)
+            coEvery { dao.isSongLikedByUser(any(), any()) } returns flowOf(false)
             coEvery { blockRepository.create(any()) } returns
                 mockk {
                     every { transaction } returns mockk()
                 }
-            mockkObject(MusicLikeBlock.Companion)
-            every { MusicLikeBlock.fromTrustChainTransaction(any()) } returns block
-            coEvery { dao.insertMusicLike(any()) } just Runs
+            mockkObject(MusicProfile.Companion)
+            every { MusicProfile.fromTrustChainTransaction(any()) } returns block
+            coEvery { dao.addLikedSong(any()) } just Runs
 
-            val result = repository.createMusicLike(testSong)
+            val result = repository.toggleLike(testSong)
 
             assertNotNull(result)
-            assertEquals(likedMusicId, result?.likedMusicId)
-            coVerify { dao.insertMusicLike(match { it.likedMusicId == likedMusicId }) }
+            assertEquals(songs, result?.likedSongs)
         }
 
     @Test
     fun testRefreshCache() =
         runTest {
-            val block1 = MusicLikeBlock("track1", "user1", "pub1", Constants.PROTOCOL_VERSION)
-            val block2 = MusicLikeBlock("track2", "user2", "pub2", Constants.PROTOCOL_VERSION)
+            val tags = emptyMap<String, List<String>>()
+            val block1 = MusicProfile("pubKey1", listOf("song1"), Constants.PROTOCOL_VERSION, tags)
+            val block2 = MusicProfile("pubKey2", listOf("song2"), Constants.PROTOCOL_VERSION, tags)
 
-            coEvery { blockRepository.getAllKnownSongLikes() } returns listOf(block1, block2)
-            coEvery { dao.insertMusicLike(any()) } just Runs
+            coEvery { blockRepository.getAll() } returns listOf(block1, block2)
+            coEvery { dao.addLikedSong(any()) } just Runs
 
             repository.refreshCache()
 
-            coVerify(exactly = 2) { dao.insertMusicLike(any()) }
+            coVerify(exactly = 2) { dao.addLikedSong(any()) }
         }
 
     @Test
-    fun testIsSongLikedByMe() {
+    fun testIsSongLikedByUser() {
         val expectedFlow = flowOf(true)
         every {
-            dao.isSongLikedByMe(likedMusicId, "peerKey")
+            dao.isSongLikedByUser("peerKey", "song1")
         } returns expectedFlow
 
         val result = repository.isSongLikedByMe(testSong)
