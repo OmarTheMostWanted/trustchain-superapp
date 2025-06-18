@@ -1,18 +1,25 @@
 package nl.tudelft.trustchain.musicdao.ui.screens.leaderboard
 
+<<<<<<< HEAD
+=======
+import androidx.compose.foundation.border
+>>>>>>> master
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import nl.tudelft.trustchain.musicdao.core.repositories.model.Album
 import nl.tudelft.trustchain.musicdao.core.repositories.model.Song
 import androidx.compose.ui.text.style.TextOverflow
-import nl.tudelft.trustchain.musicdao.core.repositories.MusicLikeRepository
+import androidx.compose.ui.unit.sp
+import nl.tudelft.trustchain.musicdao.core.repositories.MusicProfileRepository
 import nl.tudelft.trustchain.musicdao.core.repositories.model.MusicLike
 import nl.tudelft.trustchain.musicdao.ui.navigation.Screen
 
@@ -20,14 +27,19 @@ import nl.tudelft.trustchain.musicdao.ui.navigation.Screen
 fun LeaderboardScreen(
     albums: List<Album>,
     navController: NavController,
-    musicLikeRepository: MusicLikeRepository
+    leaderboardViewModel: LeaderboardViewModel
 ) {
-    var likesByMusicId by remember { mutableStateOf<Map<String, Int>>(emptyMap()) }
+    val likes by leaderboardViewModel.likesFlow.collectAsState()
 
+<<<<<<< HEAD
     // Group and count likes by likedMusicId (track.title in current logic)
     LaunchedEffect(Unit) {
         val likes = musicLikeRepository.getLikes()
         likesByMusicId = likes.groupingBy { it.likedMusicId }.eachCount()
+=======
+    val likesByMusicId = remember(likes) {
+        likes.groupingBy { it.songName }.eachCount()
+>>>>>>> master
     }
 
     val songsWithLikes =
@@ -59,16 +71,30 @@ fun LeaderboardScreen(
                 Divider()
             }
             itemsIndexed(songsWithLikes) { index, (song, likes) ->
+<<<<<<< HEAD
                 val album =
                     albums.firstOrNull {
                         it.songs?.any { s -> s.title == song.title && s.artist == song.artist } == true
                     }
+=======
+                var topTags by remember { mutableStateOf<List<String>>(emptyList()) }
+
+                LaunchedEffect(song) {
+                    val tags = leaderboardViewModel.getTopTagsForSong(song)
+                    topTags = tags.map { it.tag }
+                }
+                // Find the album this song belongs to
+                val album = albums.firstOrNull {
+                    it.songs?.any { s -> s.title ==  song.title && s.artist == song.artist } == true
+                }
+>>>>>>> master
                 val albumId = album?.id ?: return@itemsIndexed
 
                 LeaderboardListItem(
                     song = song,
                     likes = likes,
                     rank = index + 1,
+                    topTags = topTags,
                     onClick = {
                         // Stores the clicked song’s info so the next screen can access it.
                         navController.currentBackStackEntry?.savedStateHandle?.apply {
@@ -98,6 +124,7 @@ fun LeaderboardListItem(
     song: Song,
     likes: Int,
     rank: Int,
+    topTags: List<String>,
     onClick: () -> Unit
 ) {
     ListItem(
@@ -109,11 +136,35 @@ fun LeaderboardListItem(
             )
         },
         secondaryText = {
-            Text(
-                song.artist,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
+            Column {
+                Text(
+                    song.artist,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp),
+                    horizontalArrangement = Arrangement.Start
+                ) {
+                    topTags.forEach { tag ->
+                        Text(
+                            text = tag,
+                            fontSize = 12.sp,
+                            color = Color.Green,
+                            modifier = Modifier
+                                .padding(end = 5.dp)
+                                .border(
+                                    width = 1.dp,
+                                    color = Color(0xFF4CAF50),
+                                    shape = RoundedCornerShape(50)
+                                )
+                                .padding(horizontal = 7.dp, vertical = 4.dp)
+                        )
+                    }
+                }
+            }
         },
         trailing = {
             Text(

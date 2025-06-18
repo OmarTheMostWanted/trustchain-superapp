@@ -8,7 +8,7 @@ import nl.tudelft.ipv8.attestation.trustchain.validation.ValidationResult
 import nl.tudelft.trustchain.musicdao.core.ipv8.blocks.Constants
 import javax.inject.Inject
 
-class MusicLikeBlockValidator
+class MusicProfileBlockValidator
     @Inject
     constructor() : TransactionValidator {
         override fun validate(
@@ -25,11 +25,19 @@ class MusicLikeBlockValidator
 
         fun validateTransaction(transaction: TrustChainTransaction): Boolean {
             val publicKey = transaction["publicKey"]
-            val likedMusicId = transaction["likedMusicId"]
-            val name = transaction["name"]
+            val likedSongs = transaction["likedSongs"]
             val protocolVersion = transaction["protocolVersion"]
+            val tags = transaction["tags"]
+
+            val isValidTags = tags == null || (
+                tags is Map<*, *> &&
+                    tags.keys.all { it is String } &&
+                    tags.values.all { it is List<*> && it.all { tag -> tag is String } }
+                )
+
 
             return (
+<<<<<<< HEAD:musicdao/src/main/java/nl/tudelft/trustchain/musicdao/core/ipv8/blocks/musicLike/MusicLikeBlockValidator.kt
                 publicKey is String &&
                     publicKey.isNotEmpty() &&
                     transaction.containsKey("publicKey") &&
@@ -43,9 +51,16 @@ class MusicLikeBlockValidator
                     protocolVersion.isNotEmpty() &&
                     protocolVersion == Constants.PROTOCOL_VERSION
             )
+=======
+                publicKey is String && publicKey.isNotEmpty() &&
+                    likedSongs is List<*> && likedSongs.all { it is String } &&
+                    protocolVersion is String && protocolVersion == Constants.PROTOCOL_VERSION &&
+                    isValidTags
+                )
+>>>>>>> master:musicdao/src/main/java/nl/tudelft/trustchain/musicdao/core/ipv8/blocks/musicLike/MusicProfileBlockValidator.kt
         }
 
         companion object {
-            const val BLOCK_TYPE = MusicLikeBlock.BLOCK_TYPE
+            const val BLOCK_TYPE = MusicProfile.BLOCK_TYPE
         }
     }

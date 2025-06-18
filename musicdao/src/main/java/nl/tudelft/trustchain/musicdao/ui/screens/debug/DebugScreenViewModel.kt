@@ -12,10 +12,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import nl.tudelft.trustchain.musicdao.core.repositories.MusicLikeRepository
+import nl.tudelft.trustchain.musicdao.core.repositories.MusicProfileRepository
 import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
-import nl.tudelft.trustchain.musicdao.core.repositories.model.MusicLike
 
 @OptIn(DelicateCoroutinesApi::class)
 @HiltViewModel
@@ -23,7 +22,7 @@ class DebugScreenViewModel
     @Inject
     constructor(
         private val torrentEngine: TorrentEngine,
-        private val musicLikeRepository: MusicLikeRepository
+        private val musicLikeRepository: MusicProfileRepository
     ) : ViewModel() {
         private val _status: MutableStateFlow<List<TorrentStatus>> = MutableStateFlow(listOf())
         val status: StateFlow<List<TorrentStatus>> = _status
@@ -48,14 +47,17 @@ class DebugScreenViewModel
         }
 
         fun getAllLikes() {
+<<<<<<< HEAD
             var likes: List<MusicLike> = listOf()
+=======
+>>>>>>> master
             viewModelScope.launch(Dispatchers.IO) {
-                likes = musicLikeRepository.getLikes()
+                val likes = musicLikeRepository.getLikes()
                 Log.d("MusicLike", "Getting likes")
                 for (like in likes) {
-                    Log.d("MusicLike", "${like.likedMusicId} liked by ${like.name}")
+                    Log.d("MusicLike", "${like.songName} liked by ${like.publicKey}")
                 }
+                Log.d("MusicLike", "Got likes")
             }
-            Log.d("MusicLike", "Got likes")
         }
     }
