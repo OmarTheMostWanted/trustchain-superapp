@@ -192,7 +192,7 @@ class TorrentEngine
         }
 
         fun download(magnet: String): TorrentHandle? {
-            val infoHash = magnetToInfoHash(magnet = magnet)!!
+            val infoHash = magnetToInfoHash(magnet = magnet) ?: return null
             return download(magnet, Paths.get("$torrentCacheFolder/$infoHash"))
         }
 

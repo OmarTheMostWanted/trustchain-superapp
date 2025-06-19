@@ -83,12 +83,16 @@ interface CacheDao {
     suspend fun getUserTagsForAllSongs(publicKey: String): List<MusicTagEntity>
 
     @Query("SELECT * FROM ArtistEntity WHERE publicKey = :publicKey")
-    suspend fun getArtist(publicKey: String): Flow<ArtistEntity>
+    fun getArtist(publicKey: String): Flow<ArtistEntity>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertOrUpdateArtist(artist: ArtistEntity)
 
-    @Query("SELECT * FROM ArtistEntity WHERE publicKey = :publicKey")
-    suspend fun getArtistEthereumAddress(publicKey: String): Flow<String>
+    @Query("SELECT ethereumAddress FROM ArtistEntity WHERE publicKey = :publicKey")
+    fun getArtistEthereumAddress(publicKey: String): Flow<String>
+
+    @Query("SELECT * FROM ArtistEntity")
+    suspend fun getAllArtists(): List<ArtistEntity>
 
 }
+

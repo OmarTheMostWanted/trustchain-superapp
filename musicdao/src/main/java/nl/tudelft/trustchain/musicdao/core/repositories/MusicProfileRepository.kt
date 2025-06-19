@@ -228,10 +228,10 @@ constructor(
         return database.dao.getTopTagsForSong(MusicLike.musicLikeIdFromSong(song))
     }
 
-    suspend fun getEthereumWalletAddress(): String? {
+    fun getEthereumWalletAddress(): Flow<String> {
         return database.dao.getArtistEthereumAddress(
             musicProfileBlockRepository.myPeerPublicKey
-        ).firstOrNull()
+        )
     }
 
     suspend fun updateEthereumWalletAddress(ethereumWalletAddress: String): MusicProfile? {
@@ -253,6 +253,13 @@ constructor(
 
         return block
 
+    }
+
+    suspend fun getAllArtists(): List<ArtistEntity>{
+        val allArtists = database.dao.getAllArtists().filter { it.publicKey != musicProfileBlockRepository.myPeerPublicKey && !it.ethereumAddress.isNullOrBlank() }
+            Log.d("ArtistDebug", "Artist: $allArtists")
+        return database.dao.getAllArtists()
+            .filter { it.publicKey != musicProfileBlockRepository.myPeerPublicKey && !it.ethereumAddress.isNullOrBlank() }
     }
 
 

@@ -7,6 +7,7 @@ import org.web3j.crypto.WalletUtils
 import org.web3j.crypto.exception.CipherException
 import org.web3j.protocol.Web3j
 import org.web3j.protocol.core.methods.response.TransactionReceipt
+import org.web3j.protocol.core.DefaultBlockParameterName
 import org.web3j.protocol.http.HttpService
 import org.web3j.tx.gas.StaticGasProvider
 import org.web3j.utils.Convert
@@ -92,6 +93,12 @@ class EthereumWalletManager @Inject constructor(context: Context) {
         val privateKeyBigInt = BigInteger(hexPK, 16)
         val keyPair = ECKeyPair.create(privateKeyBigInt) ?: return null
         return Credentials.create(keyPair)
+    }
+
+    fun getNativeEthBalance(address: String): CompletableFuture<BigInteger> {
+        return web3.ethGetBalance(address, DefaultBlockParameterName.LATEST)
+            .sendAsync()
+            .thenApply { it.balance }
     }
 
     private fun clearWalletDirectory() {
