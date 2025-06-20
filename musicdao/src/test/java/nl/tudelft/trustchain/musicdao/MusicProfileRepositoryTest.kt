@@ -16,7 +16,7 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.Assert.*
 
-class MusicLikeRepositoryTest {
+class MusicProfileRepositoryTest {
     private lateinit var dao: CacheDao
     private lateinit var db: CacheDatabase
     private lateinit var blockRepository: MusicProfileBlockRepository
