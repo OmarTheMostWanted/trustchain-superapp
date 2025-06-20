@@ -9,6 +9,7 @@ import nl.tudelft.trustchain.musicdao.core.torrent.TorrentEngine
 import nl.tudelft.trustchain.musicdao.core.torrent.status.TorrentStatus
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -27,13 +28,14 @@ class ReleaseScreenViewModel @Inject constructor(
     private val musicProfileRepository: MusicProfileRepository
 ) : ViewModel() {
 
-        private val releaseId: String = checkNotNull(savedStateHandle["releaseId"])
-        private var releaseLiveData: LiveData<AlbumEntity> = MutableLiveData(null)
-        var saturatedReleaseState: LiveData<Album?> = MutableLiveData()
+    private val releaseId: String = checkNotNull(savedStateHandle["releaseId"])
 
-        private val _torrentState: MutableStateFlow<TorrentStatus?> = MutableStateFlow(null)
-        val torrentState: StateFlow<TorrentStatus?> = _torrentState
 
+    private var releaseLiveData: LiveData<AlbumEntity> = MutableLiveData(null)
+    var saturatedReleaseState: LiveData<Album?> = MutableLiveData()
+
+    private val _torrentState: MutableStateFlow<TorrentStatus?> = MutableStateFlow(null)
+    val torrentState: StateFlow<TorrentStatus?> = _torrentState
 
     init {
         viewModelScope.launch {
@@ -52,10 +54,11 @@ class ReleaseScreenViewModel @Inject constructor(
                     if (_release.infoHash != null) {
                         _torrentState.value = torrentEngine.getTorrentStatus(_release.infoHash)
                     }
+                    delay(1000L)
                 }
             }
         }
-        }
+    }
 
     suspend fun likeMusic(
         track: Song,
@@ -73,6 +76,7 @@ class ReleaseScreenViewModel @Inject constructor(
         if (block == null) {
             Log.d("MusicProfile", "Failed to unlike song: ${track.title}")
         }
+
     }
 
     fun isMusicLikedByMe(
@@ -90,6 +94,5 @@ class ReleaseScreenViewModel @Inject constructor(
     suspend fun getSelectedTags(song: Song): List<String> {
         return musicProfileRepository.getUserTagsForSong(song)
     }
-
 
 }

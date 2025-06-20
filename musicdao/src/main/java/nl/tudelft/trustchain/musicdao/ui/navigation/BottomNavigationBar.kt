@@ -25,7 +25,7 @@ fun BottomNavigationBar(navController: NavHostController) {
             BottomNavigationItem("Home", Screen.Home.route, Icons.Filled.Home),
             BottomNavigationItem("Creator", Screen.CreatorMenu.route, Icons.Filled.Person),
             BottomNavigationItem("ETH", Screen.EthDonations.route, Icons.Filled.Send),
-            BottomNavigationItem("Debug", Screen.Debug.route, Icons.Filled.Build),
+            //BottomNavigationItem("Debug", Screen.Debug.route, Icons.Filled.Build),
             BottomNavigationItem("Leaderboard", Screen.Leaderboard.route, Icons.Filled.Star)
         )
 
