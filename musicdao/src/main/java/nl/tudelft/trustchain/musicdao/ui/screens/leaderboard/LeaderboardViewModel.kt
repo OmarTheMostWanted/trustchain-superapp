@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.map
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.Flow
 import nl.tudelft.trustchain.musicdao.core.repositories.MusicProfileRepository
 import nl.tudelft.trustchain.musicdao.core.repositories.model.MusicLike
 import nl.tudelft.trustchain.musicdao.core.repositories.model.Song
@@ -20,7 +21,7 @@ class LeaderboardViewModel @Inject constructor(
     val likesFlow: StateFlow<List<MusicLike>> = musicLikeRepository.getLikesFlow()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    suspend fun getTopTagsForSong(song: Song): List<TagCount> {
+    fun getTopTagsForSong(song: Song): Flow<List<TagCount>> {
         return musicLikeRepository.getTopTagsForSong(song)
     }
 }

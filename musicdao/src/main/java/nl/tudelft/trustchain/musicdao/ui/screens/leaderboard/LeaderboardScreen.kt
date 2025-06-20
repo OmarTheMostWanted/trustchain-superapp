@@ -61,12 +61,11 @@ fun LeaderboardScreen(
                 Divider()
             }
             itemsIndexed(songsWithLikes) { index, (song, likes) ->
-                var topTags by remember { mutableStateOf<List<String>>(emptyList()) }
 
-                LaunchedEffect(song) {
-                    val tags = leaderboardViewModel.getTopTagsForSong(song)
-                    topTags = tags.map { it.tag }
-                }
+                val tags by leaderboardViewModel
+                    .getTopTagsForSong(song)
+                    .collectAsState(initial = emptyList())
+                val topTags = tags.map { it.tag }
                 // Find the album this song belongs to
                 val album = albums.firstOrNull {
                     it.songs?.any { s -> s.title ==  song.title && s.artist == song.artist } == true

@@ -74,7 +74,8 @@ interface CacheDao {
     suspend fun removeTag(publicKey: String, songName: String, tag: String)
 
     @Query("SELECT tag, COUNT(*) as count FROM MusicTagEntity WHERE songName = :songName GROUP BY tag ORDER BY count DESC LIMIT 3")
-    suspend fun getTopTagsForSong(songName: String): List<TagCount>
+    fun getTopTagsForSong(songName: String): Flow<List<TagCount>>
+
 
     @Query("SELECT tag FROM MusicTagEntity WHERE publicKey = :publicKey AND songName = :songName")
     suspend fun getUserTagsForSong(publicKey: String, songName: String): List<String>

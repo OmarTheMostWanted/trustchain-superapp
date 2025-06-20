@@ -230,7 +230,7 @@ constructor(
         )
     }
 
-    suspend fun getTopTagsForSong(song: Song): List<TagCount> {
+    fun getTopTagsForSong(song: Song): Flow<List<TagCount>> {
         return database.dao.getTopTagsForSong(MusicLike.musicLikeIdFromSong(song))
     }
 
