@@ -78,7 +78,7 @@ fun AppNavigation(
                 nl.tudelft.trustchain.musicdao.ui.screens.leaderboard.LeaderboardScreen(
                     albums = albums,
                     navController = navController,
-                    musicLikeRepository = leaderboardViewModel.musicLikeRepository
+                    leaderboardViewModel = leaderboardViewModel
                 )
             }
             composable(Screen.EthDonations.route) {

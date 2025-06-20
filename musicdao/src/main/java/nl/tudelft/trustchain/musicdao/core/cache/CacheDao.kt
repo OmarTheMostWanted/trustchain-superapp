@@ -94,5 +94,8 @@ interface CacheDao {
     @Query("SELECT * FROM ArtistEntity")
     suspend fun getAllArtists(): List<ArtistEntity>
 
+    @Query("SELECT * FROM MusicLikeEntity WHERE protocolVersion = :protocolVersion")
+    fun getAllLikesFlow(protocolVersion: String = Constants.PROTOCOL_VERSION): Flow<List<MusicLikeEntity>>
+
 }
 
