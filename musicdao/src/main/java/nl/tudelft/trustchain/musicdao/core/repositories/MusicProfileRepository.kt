@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import nl.tudelft.trustchain.musicdao.core.cache.CacheDatabase
+import nl.tudelft.trustchain.musicdao.core.cache.entities.ArtistEntity
 import nl.tudelft.trustchain.musicdao.core.cache.entities.MusicTagEntity
 import nl.tudelft.trustchain.musicdao.core.ipv8.blocks.Constants.PROTOCOL_VERSION
 import nl.tudelft.trustchain.musicdao.core.ipv8.blocks.musicLike.MusicProfile
@@ -34,12 +35,12 @@ constructor(
 
         val id = MusicLike.musicLikeIdFromSong(track)
 
-        val likedSongs_debug =
-            database.dao.getAllLikedSongsByUser(musicProfileBlockRepository.myPeerPublicKey)
-                .firstOrNull() ?: emptyList()
-        val likedSongsList_debug = likedSongs_debug.map { it.songName }.toList()
-
-        Log.d("MusicProfile", "Liked songs before toggle: $likedSongsList_debug")
+//        val likedSongs_debug =
+//            database.dao.getAllLikedSongsByUser(musicProfileBlockRepository.myPeerPublicKey)
+//                .firstOrNull() ?: emptyList()
+//        val likedSongsList_debug = likedSongs_debug.map { it.songName }.toList()
+//
+//        Log.d("MusicProfile", "Liked songs before toggle: $likedSongsList_debug")
 
 
         val isLiked =
@@ -74,13 +75,17 @@ constructor(
                 .firstOrNull() ?: emptyList()
         val likedSongsList = likedSongs.map { it.songName }.toList()
 
-        val allTags = database.dao.getUserTagsForAllSongs(musicProfileBlockRepository.myPeerPublicKey)
-            .groupBy { it.songName }
-            .mapValues { it.value.map { tag -> tag.tag }.take(3) }
+        val allTags =
+            database.dao.getUserTagsForAllSongs(musicProfileBlockRepository.myPeerPublicKey)
+                .groupBy { it.songName }
+                .mapValues { it.value.map { tag -> tag.tag }.take(3) }
 
         val companion = MusicProfileBlockRepository.Companion.MusicProfileCompanion(
             allLikedSongs = likedSongsList,
-            allTags = allTags
+            allTags = allTags,
+            ethereumWalletAddress = database.dao.getArtistEthereumAddress(
+                musicProfileBlockRepository.myPeerPublicKey
+            ).firstOrNull() ?: ""
         )
 
         val block = musicProfileBlockRepository.create(companion)
@@ -117,7 +122,9 @@ constructor(
 
         val companion = MusicProfileBlockRepository.Companion.MusicProfileCompanion(
             allLikedSongs = likedSongs,
-            allTags = allTags
+            allTags = allTags,
+            ethereumWalletAddress = database.dao.getArtistEthereumAddress(userKey)
+                .firstOrNull() ?: ""
         )
 
         return musicProfileBlockRepository.create(companion)
@@ -135,7 +142,8 @@ constructor(
             val userPublicKey = block.publicKey
             val likedSongs = block.likedSongs
             val localLikedSongs =
-                (database.dao.getAllLikedSongsByUser(userPublicKey).firstOrNull() ?: emptyList()).toSet()
+                (database.dao.getAllLikedSongsByUser(userPublicKey).firstOrNull()
+                    ?: emptyList()).toSet()
             val remoteLikedSongs = likedSongs.toSet()
 
             // Find songs to add
@@ -167,13 +175,17 @@ constructor(
             val remoteTagTriples = remoteTags.flatMap { (song, tags) ->
                 tags.map { tag -> Triple(song, tag, userPublicKey) }
             }.toSet()
-            val localTagTriples = localTags.map { Triple(it.songName, it.tag, it.publicKey) }.toSet()
+            val localTagTriples =
+                localTags.map { Triple(it.songName, it.tag, it.publicKey) }.toSet()
 
             val tagsToAdd = remoteTagTriples - localTagTriples
             val tagsToRemove = localTagTriples - remoteTagTriples
 
             for ((song, tag, pubKey) in tagsToAdd) {
-                Log.d("MusicProfile", "Inserting tag: $tag for song: $song from user: $userPublicKey")
+                Log.d(
+                    "MusicProfile",
+                    "Inserting tag: $tag for song: $song from user: $userPublicKey"
+                )
                 database.dao.addTag(
                     MusicTagEntity(pubKey, song, tag, PROTOCOL_VERSION)
                 )
@@ -183,24 +195,26 @@ constructor(
                 database.dao.removeTag(pubKey, song, tag)
             }
 
+            // Update Ethereum wallet address if it exists in the block
+            val ethereumWalletAddress = block.ethereumWalletAddress
+            if (ethereumWalletAddress.isNotEmpty()) {
+                val existingAddress =
+                    database.dao.getArtistEthereumAddress(userPublicKey).firstOrNull()
+                if (existingAddress != ethereumWalletAddress) {
+                    Log.d(
+                        "MusicProfile",
+                        "Updating Ethereum wallet address for user: $userPublicKey"
+                    )
+                    database.dao.insertOrUpdateArtist(
+                        ArtistEntity(
+                            publicKey = userPublicKey,
+                            ethereumAddress = ethereumWalletAddress
+                        )
+                    )
+                }
+            }
         }
     }
-//
-//    private suspend fun insertBlock(block: MusicProfile) {
-//        database.dao.insertMusicLike(
-//            MusicLikeEntity(
-//                publicKey = block.publicKey,
-//                likedSongs = block.likedSongs.joinToString(","), // Serialize list to JSON string
-//                name = block.name,
-//                protocolVersion = block.protocolVersion,
-//                id = block.publicKey // Use publicKey as the unique ID for the block
-//            )
-//        )
-//    }
-
-//    private fun getDatabaseIdFromBlock(block: MusicLikeBlock): String {
-//        return "${block.name}_${block.likedMusicId}"
-//    }
 
     fun isSongLikedByMe(track: Song): Flow<Boolean> {
         return database.dao.isSongLikedByUser(
@@ -218,6 +232,40 @@ constructor(
 
     suspend fun getTopTagsForSong(song: Song): List<TagCount> {
         return database.dao.getTopTagsForSong(MusicLike.musicLikeIdFromSong(song))
+    }
+
+    fun getEthereumWalletAddress(): Flow<String> {
+        return database.dao.getArtistEthereumAddress(
+            musicProfileBlockRepository.myPeerPublicKey
+        )
+    }
+
+    suspend fun updateEthereumWalletAddress(ethereumWalletAddress: String): MusicProfile? {
+        database.dao.insertOrUpdateArtist(
+            ArtistEntity(musicProfileBlockRepository.myPeerPublicKey, ethereumWalletAddress)
+        )
+
+        val companion = MusicProfileBlockRepository.Companion.MusicProfileCompanion(
+            allLikedSongs = database.dao.getAllLikedSongsByUser(musicProfileBlockRepository.myPeerPublicKey)
+                .firstOrNull()?.map { it.songName } ?: emptyList(),
+            allTags = database.dao.getUserTagsForAllSongs(musicProfileBlockRepository.myPeerPublicKey)
+                .groupBy { it.songName }
+                .mapValues { it.value.map { tag -> tag.tag }.take(3) },
+            ethereumWalletAddress = ethereumWalletAddress
+        )
+
+        val block = musicProfileBlockRepository.create(companion)
+            ?.let { MusicProfile.fromTrustChainTransaction(it.transaction) }
+
+        return block
+
+    }
+
+    suspend fun getAllArtists(): List<ArtistEntity>{
+        val allArtists = database.dao.getAllArtists().filter { it.publicKey != musicProfileBlockRepository.myPeerPublicKey && !it.ethereumAddress.isNullOrBlank() }
+            Log.d("ArtistDebug", "Artist: $allArtists")
+        return database.dao.getAllArtists()
+            .filter { it.publicKey != musicProfileBlockRepository.myPeerPublicKey && !it.ethereumAddress.isNullOrBlank() }
     }
 
 

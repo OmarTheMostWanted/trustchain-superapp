@@ -3,7 +3,9 @@ package nl.tudelft.trustchain.musicdao.core.cache
 import androidx.lifecycle.LiveData
 import androidx.room.*
 import kotlinx.coroutines.flow.Flow
+import nl.tudelft.ipv8.messaging.Address
 import nl.tudelft.trustchain.musicdao.core.cache.entities.AlbumEntity
+import nl.tudelft.trustchain.musicdao.core.cache.entities.ArtistEntity
 import nl.tudelft.trustchain.musicdao.core.cache.entities.MusicLikeEntity
 import nl.tudelft.trustchain.musicdao.core.cache.entities.MusicTagEntity
 import nl.tudelft.trustchain.musicdao.core.ipv8.blocks.Constants
@@ -80,21 +82,20 @@ interface CacheDao {
     @Query("SELECT * FROM MusicTagEntity WHERE publicKey = :publicKey")
     suspend fun getUserTagsForAllSongs(publicKey: String): List<MusicTagEntity>
 
+    @Query("SELECT * FROM ArtistEntity WHERE publicKey = :publicKey")
+    fun getArtist(publicKey: String): Flow<ArtistEntity>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertOrUpdateArtist(artist: ArtistEntity)
+
+    @Query("SELECT ethereumAddress FROM ArtistEntity WHERE publicKey = :publicKey")
+    fun getArtistEthereumAddress(publicKey: String): Flow<String>
+
+    @Query("SELECT * FROM ArtistEntity")
+    suspend fun getAllArtists(): List<ArtistEntity>
+
     @Query("SELECT * FROM MusicLikeEntity WHERE protocolVersion = :protocolVersion")
     fun getAllLikesFlow(protocolVersion: String = Constants.PROTOCOL_VERSION): Flow<List<MusicLikeEntity>>
 
-//    @Query("SELECT * FROM MusicLikeEntity")
-//    suspend fun getAllMusicLikes(): List<MusicLikeEntity>
-//
-//    @Insert(onConflict = OnConflictStrategy.REPLACE)
-//    suspend fun insertMusicLike(musicLike: MusicLikeEntity)
-//
-//    @Query("SELECT EXISTS(SELECT 1 FROM MusicLikeEntity WHERE likedSongs LIKE '%' || :songId || '%' AND publicKey = :myId)")
-//    fun isSongLikedByMe(songId: String, myId: String): Flow<Boolean>
-//
-//    @Query("SELECT EXISTS(SELECT 1 FROM MusicLikeEntity WHERE publicKey = :myId)")
-//    fun getAllSongsLikedByMe(myId: String): Flow<List<String>>
-
-//    @Query("SELECT EXISTS(SELECT 1 FROM MusicLikeEntity WHERE likedMusicId = :songId AND name = :myId)")
-//    fun isSongLikedByMe(songId: String, myId: String): Flow<Boolean>
 }
+

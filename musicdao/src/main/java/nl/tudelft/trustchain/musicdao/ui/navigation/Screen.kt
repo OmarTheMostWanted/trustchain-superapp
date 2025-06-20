@@ -20,6 +20,8 @@ sealed class Screen(val route: String) {
         }
     }
 
+    object EthDonations : Screen("ethDonations")
+
     object Search : Screen("search")
 
     object Settings : Screen("settings")
