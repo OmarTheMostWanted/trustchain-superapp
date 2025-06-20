@@ -9,7 +9,6 @@ import nl.tudelft.trustchain.musicdao.core.torrent.TorrentEngine
 import nl.tudelft.trustchain.musicdao.core.torrent.status.TorrentStatus
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -28,18 +27,13 @@ class ReleaseScreenViewModel @Inject constructor(
     private val musicProfileRepository: MusicProfileRepository
 ) : ViewModel() {
 
+        private val releaseId: String = checkNotNull(savedStateHandle["releaseId"])
         private var releaseLiveData: LiveData<AlbumEntity> = MutableLiveData(null)
         var saturatedReleaseState: LiveData<Album?> = MutableLiveData()
 
         private val _torrentState: MutableStateFlow<TorrentStatus?> = MutableStateFlow(null)
         val torrentState: StateFlow<TorrentStatus?> = _torrentState
 
-        init {
-            viewModelScope.launch {
-                releaseLiveData = database.dao.getLiveData(releaseId)
-                saturatedReleaseState = releaseLiveData.map { it.toAlbum() }
-
-                val release = database.dao.get(releaseId)
 
     init {
         viewModelScope.launch {
@@ -61,6 +55,7 @@ class ReleaseScreenViewModel @Inject constructor(
                 }
             }
         }
+        }
 
     suspend fun likeMusic(
         track: Song,
@@ -77,10 +72,6 @@ class ReleaseScreenViewModel @Inject constructor(
         val block = musicProfileRepository.toggleLike(track)
         if (block == null) {
             Log.d("MusicProfile", "Failed to unlike song: ${track.title}")
-        }
-
-        fun isMusicLikedByMe(track: Song,): Flow<Boolean> {
-            return musicLikeRepository.isSongLikedByMe(track)
         }
     }
 
