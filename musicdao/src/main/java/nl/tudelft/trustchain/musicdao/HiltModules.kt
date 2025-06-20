@@ -29,6 +29,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import nl.tudelft.ipv8.android.IPv8Android
 import nl.tudelft.trustchain.musicdao.core.coin.*
+import nl.tudelft.trustchain.musicdao.core.ethereum.EthereumWalletManager
 import java.nio.file.Path
 import java.nio.file.Paths
 import javax.inject.Singleton
@@ -170,6 +171,15 @@ class HiltModules {
 
         return WalletManagerAndroid.getInstance()
     }
+
+    @Provides
+    @Singleton
+    fun provideETHWalletService(
+        @ApplicationContext applicationContext: Context
+    ): EthereumWalletManager {
+        return EthereumWalletManager(applicationContext)
+    }
+
 }
 
 class CachePath(val applicationContext: Context) {

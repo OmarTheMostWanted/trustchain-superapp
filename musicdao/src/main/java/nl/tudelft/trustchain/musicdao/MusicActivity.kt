@@ -14,7 +14,6 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.ui.ExperimentalComposeUiApi
-import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.lifecycleScope
 import nl.tudelft.trustchain.musicdao.core.ipv8.SetupMusicCommunity
 import nl.tudelft.trustchain.musicdao.core.repositories.AlbumRepository
@@ -37,7 +36,10 @@ import kotlinx.coroutines.*
 import nl.tudelft.trustchain.musicdao.core.cache.CacheDatabase
 import nl.tudelft.trustchain.musicdao.core.cache.entities.AlbumEntity
 import nl.tudelft.trustchain.musicdao.core.coin.WalletManager
+import nl.tudelft.trustchain.musicdao.core.ethereum.EthereumWalletManager
 import nl.tudelft.trustchain.musicdao.core.repositories.MusicProfileRepository
+import org.bouncycastle.jce.provider.BouncyCastleProvider
+import java.security.Security
 import javax.inject.Inject
 
 /**
@@ -76,6 +78,9 @@ class MusicActivity : AppCompatActivity() {
     @Inject
     lateinit var database: CacheDatabase
 
+    @Inject
+    lateinit var ethWalletManager: EthereumWalletManager
+
     lateinit var mService: MusicGossipingService
     var mBound: Boolean = false
 
@@ -93,7 +98,6 @@ class MusicActivity : AppCompatActivity() {
             albumRepository.refreshCache()
             profileRepository.refreshCache()
             torrentEngine.seedStrategy()
-
 
             val json = assets.open("pandacd.txt").bufferedReader().use { it.readText() }
             val gson = Gson()
@@ -120,15 +124,21 @@ class MusicActivity : AppCompatActivity() {
                 Log.d("MusicDao", "Adding cc album ${albumEntry.title}")
                 database.dao.insert(albumEntry)
             }
-
-
-
-            // Add some copyright-free albums
-
-
         }
         iterativelyFetchReleasesAndMusicLikes()
+        BouncyCastleInitializer.ensureProvider()
 
+        // Creating an ETH wallet
+        if (ethWalletManager.doesWalletExists()) {
+            Log.d("ETHSmartContracts", "Wallet already exists")
+            val credentials = ethWalletManager.getWalletCredentials("Password")
+            if (credentials != null) {
+                Log.d("ETHSmartContracts", "Wallet address: ${credentials.address}")
+            }
+        } else {
+            Log.d("ETHSmartContracts", "Generating a wallet")
+            ethWalletManager.createWallet("Password")
+        }
 
 
         Intent(this, MusicGossipingService::class.java).also { intent ->
@@ -225,6 +235,17 @@ class MusicActivity : AppCompatActivity() {
         super.onDestroy()
         if (mBound) {
             unbindService(mConnection)
+        }
+    }
+
+    object BouncyCastleInitializer {
+        fun ensureProvider() {
+            val provider = Security.getProvider(BouncyCastleProvider.PROVIDER_NAME)
+            if (provider == null || provider.javaClass != BouncyCastleProvider::class.java) {
+                // Remove the wrong one and add the correct one
+                Security.removeProvider(BouncyCastleProvider.PROVIDER_NAME)
+                Security.addProvider(BouncyCastleProvider())
+            }
         }
     }
 
