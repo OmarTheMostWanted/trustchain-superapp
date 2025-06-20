@@ -99,7 +99,8 @@ class TrustChainApplication : Application() {
                 walkerInterval = 5.0
             )
 
-        IPv8Android.Factory(this)
+        IPv8Android
+            .Factory(this)
             .setConfiguration(config)
             .setPrivateKey(getPrivateKey())
             .setServiceClass(TrustChainService::class.java)
@@ -243,12 +244,11 @@ class TrustChainApplication : Application() {
         )
     }
 
-    private fun createTFTPCommunity(): OverlayConfiguration<TFTPCommunity> {
-        return OverlayConfiguration(
+    private fun createTFTPCommunity(): OverlayConfiguration<TFTPCommunity> =
+        OverlayConfiguration(
             Overlay.Factory(TFTPCommunity::class.java),
             listOf()
         )
-    }
 
     private fun createDemoCommunity(): OverlayConfiguration<DemoCommunity> {
         val randomWalk = RandomWalk.Factory()
@@ -308,7 +308,8 @@ class TrustChainApplication : Application() {
         return if (privateKey == null) {
             // Generate a new key on the first launch
             val newKey = schemaManager.getAlgorithmInstance(idFormat).generateSecretKey()
-            prefs.edit()
+            prefs
+                .edit()
                 .putString(idFormat, newKey.serialize().toHex())
                 .apply()
             newKey
@@ -324,7 +325,8 @@ class TrustChainApplication : Application() {
         return if (privateKey == null) {
             // Generate a new key on the first launch
             val newKey = AndroidCryptoProvider.generateKey()
-            prefs.edit()
+            prefs
+                .edit()
                 .putString(PREF_PRIVATE_KEY, newKey.keyToBin().toHex())
                 .apply()
             newKey

@@ -180,7 +180,6 @@ class HiltModules {
         return EthereumWalletManager(applicationContext)
     }
 
-
 }
 
 class CachePath(val applicationContext: Context) {

@@ -14,17 +14,14 @@ class MusicProfileBlockValidator
         override fun validate(
             block: TrustChainBlock,
             database: TrustChainStore
-        ): ValidationResult {
-            return if (validate(block)) {
+        ): ValidationResult =
+            if (validate(block)) {
                 ValidationResult.Valid
             } else {
                 ValidationResult.Invalid(listOf("Not all information included."))
             }
-        }
 
-        private fun validate(block: TrustChainBlock): Boolean {
-            return validateTransaction(block.transaction)
-        }
+        private fun validate(block: TrustChainBlock): Boolean = validateTransaction(block.transaction)
 
         fun validateTransaction(transaction: TrustChainTransaction): Boolean {
             val publicKey = transaction["publicKey"]
@@ -47,8 +44,8 @@ class MusicProfileBlockValidator
                     isValidTags && ethereumWalletAddress is String
                 )
         }
+
         companion object {
             const val BLOCK_TYPE = MusicProfile.BLOCK_TYPE
         }
     }
-

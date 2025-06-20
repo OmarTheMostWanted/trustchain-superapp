@@ -32,14 +32,14 @@ fun LeaderboardScreen(
         likes.groupingBy { it.songName }.eachCount()
     }
 
-    val songsWithLikes = albums
-        .flatMap { it.songs.orEmpty() }
-        .distinctBy { song -> song.artist to song.title }
-        .map { song ->
-            val likeCount = likesByMusicId[MusicLike.musicLikeIdFromSong(song)] ?: 0
-            song to likeCount
-        }
-        .sortedByDescending { it.second }
+    val songsWithLikes =
+        albums
+            .flatMap { it.songs.orEmpty() }
+            .distinctBy { song -> song.artist to song.title }
+            .map { song ->
+                val likeCount = likesByMusicId[MusicLike.musicLikeIdFromSong(song)] ?: 0
+                song to likeCount
+            }.sortedByDescending { it.second }
 
     Scaffold(
         topBar = {
@@ -51,10 +51,11 @@ fun LeaderboardScreen(
         }
     ) { paddingValues ->
         LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .padding(16.dp)
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .padding(16.dp)
         ) {
             item(0) {
                 Divider()
@@ -78,11 +79,13 @@ fun LeaderboardScreen(
                     rank = index + 1,
                     topTags = topTags,
                     onClick = {
+                        // Stores the clicked song’s info so the next screen can access it.
                         navController.currentBackStackEntry?.savedStateHandle?.apply {
-                            set("songTitle", song.title) // Stores the clicked song’s info so
-                            set("songArtist", song.artist) // the next screen can access it.
+                            set("songTitle", song.title)
+                            set("songArtist", song.artist)
                         }
-                        navController.navigate(Screen.Release.createRoute(albumId)) // Navigate to the album
+                        // Navigate to the album
+                        navController.navigate(Screen.Release.createRoute(albumId))
                     }
                 )
                 Divider()
@@ -152,6 +155,7 @@ fun LeaderboardListItem(
                 style = MaterialTheme.typography.body1
             )
         },
-        modifier = Modifier.clickable { onClick() } // Handle click to trigger navigation
+        // Handle click to trigger navigation
+        modifier = Modifier.clickable { onClick() }
     )
 }

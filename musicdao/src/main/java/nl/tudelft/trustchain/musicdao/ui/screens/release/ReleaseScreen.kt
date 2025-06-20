@@ -1,8 +1,5 @@
 package nl.tudelft.trustchain.musicdao.ui.screens.release
 
-import android.app.Activity
-import android.content.Context
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -37,7 +34,6 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import nl.tudelft.trustchain.musicdao.MusicActivity
 import nl.tudelft.trustchain.musicdao.core.repositories.model.Album
 import nl.tudelft.trustchain.musicdao.core.repositories.model.Song
 import nl.tudelft.trustchain.musicdao.core.torrent.status.DownloadingTrack
@@ -46,10 +42,7 @@ import nl.tudelft.trustchain.musicdao.ui.components.player.PlayerViewModel
 import nl.tudelft.trustchain.musicdao.ui.util.dateToShortString
 import nl.tudelft.trustchain.musicdao.ui.navigation.Screen
 import nl.tudelft.trustchain.musicdao.ui.screens.torrent.TorrentStatusScreen
-import dagger.hilt.android.EntryPointAccessors
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import nl.tudelft.trustchain.musicdao.ui.SnackbarHandler
 import java.io.File
 
 @ExperimentalMaterialApi
@@ -104,9 +97,10 @@ fun ReleaseScreen(
 
         LaunchedEffect(songTitle, songArtist) {
             if (songTitle != null && songArtist != null) {
-                val songToPlay = album.songs?.firstOrNull {
-                    it.title == songTitle && it.artist == songArtist
-                }
+                val songToPlay =
+                    album.songs?.firstOrNull {
+                        it.title == songTitle && it.artist == songArtist
+                    }
                 if (songToPlay != null) {
                     playerViewModel.playDownloadedTrack(songToPlay, album.cover) // Starts the playback
                 }
