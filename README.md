@@ -103,14 +103,14 @@ The two main functionalities added were the leaderboard panel and the Ethereum d
 
 #### Overview
 
-MusicDAO allows users to donate Ether (ETH) directly to multiple artists using a custom smart contract, [`MusicDonationSplitter.sol`](src/main/java/nl/tudelft/trustchain/musicdao/core/solidity/MusicDonationSplitter.sol), deployed on the Sepolia test network. Donations can be split among multiple artists in customizable percentages, and artists can withdraw their contract's balance at any time. The functionality allows for configurable percentages, but the current UI only allows an equal split among selected wallets.
+MusicDAO allows users to donate Ether (ETH) directly to multiple artists using a custom smart contract, [`MusicDonationSplitter.sol`](musicdao/src/main/java/nl/tudelft/trustchain/musicdao/core/solidity/MusicDonationSplitter.sol), deployed on the Sepolia test network. Donations can be split among multiple artists in customizable percentages, and artists can withdraw their contract's balance at any time. The functionality allows for configurable percentages, but the current UI only allows an equal split among selected wallets.
 #### Wallet 
 The wallet file is stored locally and contains the private key encrypted by the local password. It is created by methods `createWallet` or `createWalletFromExistingHexPK` and accessed by `getWalletCredentials`. It allows the user to sign transactions and prove ownership of their Ethereum address.
 
 
 #### Smart Contract
 
-- **Location:** [`MusicDonationSplitter.sol`](src/main/java/nl/tudelft/trustchain/musicdao/core/solidity/MusicDonationSplitter.sol)
+- **Location:** [`MusicDonationSplitter.sol`](musicdao/src/main/java/nl/tudelft/trustchain/musicdao/core/solidity/MusicDonationSplitter.sol)
 - **Key Features:**
   - Accepts ETH donations and splits them among specified artists.
   - Each artist’s balance is tracked and can be withdrawn.
@@ -126,7 +126,7 @@ The wallet file is stored locally and contains the private key encrypted by the 
 All Ethereum functionality is handled through the `ETH` panel. A secure environment is enforced, by requesting the password every time the user navigates away from the screen and by having the private key hidden from view.
 #### Wallet Management
 
-- **Class:** [`EthereumWalletManager`](src/main/java/nl/tudelft/trustchain/musicdao/core/ethereum/EthereumWalletManager.kt)
+- **Class:** [`EthereumWalletManager`](musicdao/src/main/java/nl/tudelft/trustchain/musicdao/core/ethereum/EthereumWalletManager.kt)
 - **Features:**
   - Create a new wallet by providing a password or import an existing wallet connecting with the private key. A wallet address is assigned, currently linked to profile's public key.
   - Retrieve wallet credentials from local storage for signing transactions or connecting from different devices (private key).
@@ -138,8 +138,8 @@ All Ethereum functionality is handled through the `ETH` panel. A secure environm
 
 1. **User selects wallet addresses and donation amount.**
 2. **App splits the donation**.
-3. **App calls** [`donateToArtist`](src/main/java/nl/tudelft/trustchain/musicdao/core/ethereum/EthereumWalletManager.kt) to send the transaction to the smart contract.
-4. **Artists can withdraw** their balance using [`getMoneyFromSmartContract`](src/main/java/nl/tudelft/trustchain/musicdao/core/ethereum/EthereumWalletManager.kt).
+3. **App calls** [`donateToArtist`](musicdao/src/main/java/nl/tudelft/trustchain/musicdao/core/ethereum/EthereumWalletManager.kt) to send the transaction to the smart contract.
+4. **Artists can withdraw** their balance using [`getMoneyFromSmartContract`](musicdao/src/main/java/nl/tudelft/trustchain/musicdao/core/ethereum/EthereumWalletManager.kt).
 
 ### Leaderboard
 The leaderboard displays the most liked songs along with the like count and the song's top tags (maximum 3). It automatically refreshes driving engagement and showing a song's popularity. Tags are a new useful feature, which adds an extra information granularity that could help the user filter the database based on certain characteristics, but also eliminate unwanted noise introduced by the open and decentralized nature of the application.
