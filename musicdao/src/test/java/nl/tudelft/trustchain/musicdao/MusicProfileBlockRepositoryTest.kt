@@ -38,7 +38,12 @@ class MusicProfileBlockRepositoryTest {
     fun testValidateSuccess() {
         val songs = listOf("song1")
         val tags = emptyMap<String, List<String>>()
-        val create = MusicProfileCompanion(songs, tags)
+        val companion =
+            MusicProfileCompanion(
+                songs,
+                tags,
+                ethereumWalletAddress = ""
+            )
         val expectedTransaction = slot<Map<String, String>>()
 
         every { mockValidator.validateTransaction(capture(expectedTransaction)) } returns true
@@ -50,12 +55,11 @@ class MusicProfileBlockRepositoryTest {
             )
         } returns mockTrustchainBlock
 
-        val result = repository.create(create)
+        val result = repository.create(companion)
         assertEquals(mockTrustchainBlock, result)
 
         val transaction = expectedTransaction.captured
         assertEquals(mockPublicKey.keyToBin().toHex(), transaction["publicKey"])
-        assertEquals("song1", transaction["likedMusicId"])
         assertEquals(Constants.PROTOCOL_VERSION, transaction["protocolVersion"])
     }
 
@@ -63,7 +67,7 @@ class MusicProfileBlockRepositoryTest {
     fun testValidateFail() {
         val songs = listOf("invalidSong")
         val tags = emptyMap<String, List<String>>()
-        val create = MusicProfileCompanion(songs, tags)
+        val create = MusicProfileCompanion(songs, tags, "")
         every { mockValidator.validateTransaction(any()) } returns false
 
         val result = repository.create(create)
@@ -72,10 +76,10 @@ class MusicProfileBlockRepositoryTest {
 
     @Test
     fun testMappedBlocks() {
-        mockkObject(MusicProfile.Companion)
+        mockkObject(MusicProfile)
         every { mockTrustchainBlock.transaction } returns
             mapOf(
-                "likedMusicId" to "song1",
+                "likedSongs" to listOf("song1"),
                 "publicKey" to "pubKey",
                 "protocolVersion" to Constants.PROTOCOL_VERSION
             )
@@ -92,7 +96,7 @@ class MusicProfileBlockRepositoryTest {
 
     @Test
     fun testFilterInvalid() {
-        mockkObject(MusicProfile.Companion)
+        mockkObject(MusicProfile)
         every { mockValidator.validateTransaction(any()) } returns false
         every { mockCommunity.database.getBlocksWithType(MusicProfile.BLOCK_TYPE) } returns listOf(mockTrustchainBlock)
         every { mockTrustchainBlock.transaction } returns
@@ -107,29 +111,10 @@ class MusicProfileBlockRepositoryTest {
     }
 
     @Test
-    fun testGetAllKnownSongLikes() {
-        mockkObject(MusicProfile.Companion)
-        val mockMusicLikeBlock = mockk<MusicProfile>()
-        every { mockValidator.validateTransaction(any()) } returns true
-        every { mockCommunity.database.getBlocksWithType(MusicProfile.BLOCK_TYPE) } returns listOf(mockTrustchainBlock)
-        every { MusicProfile.fromTrustChainTransaction(any()) } returns mockMusicLikeBlock
-        every { mockTrustchainBlock.transaction } returns
-            mapOf(
-                "likedMusicId" to "song1",
-                "publicKey" to "pubKey",
-                "protocolVersion" to Constants.PROTOCOL_VERSION
-            )
-
-        val result = repository.getAll()
-        assertEquals(1, result.size)
-        assertEquals(mockMusicLikeBlock, result.first())
-    }
-
-    @Test
     fun testToBlock() {
         val transaction = mapOf("likedMusicId" to "id", "name" to "test", "protocolVersion" to "1", "publicKey" to "pk")
         every { mockTrustchainBlock.transaction } returns transaction
-        mockkObject(MusicProfile.Companion)
+        mockkObject(MusicProfile)
         val expected = mockk<MusicProfile>()
         every { MusicProfile.fromTrustChainTransaction(transaction) } returns expected
 

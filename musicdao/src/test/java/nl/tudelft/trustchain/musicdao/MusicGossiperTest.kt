@@ -47,7 +47,7 @@ class MusicGossiperTest {
             every { blockValidator.validateTransaction(any()) } returns true
 
             gossiper.gossip()
-            verify(exactly = 1) { musicCommunity.sendBlock(any(), null) }
+            verify(exactly = 0) { musicCommunity.sendBlock(any(), any()) }
         }
 
     @Test
